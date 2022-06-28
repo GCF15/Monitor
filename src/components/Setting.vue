@@ -20,7 +20,7 @@
 								label-width="auto" 
 								require-mark-placement="right-hanging"
 								:size="size"  
-								:style="{       maxWidth: '640px'     }"   
+								:style="{       maxWidth: '640px'     }"    
 							> 
 						<n-form-item label="请输入" >
 							<n-input-number v-model:value="timeRefresh" :show-button="true" clearable round style="width:200px;">
@@ -71,6 +71,22 @@
 						<!--企业微信-->
 						<n-collapse-item title="企业微信" v-if="wechat" name="wechat">
 							<div>
+                <n-modal :show="ModalShow">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value=wechatModel.content.text.content></n-input>
+									<p></p>
+									<n-space>
+										<n-button round @click="TestWechatChange()">发送</n-button>
+										<n-button round @click="ModalShow=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
 								<n-form        
 									label-placement="left"     
 									label-width="auto" 
@@ -93,7 +109,7 @@
 										{{item.element}}
 										<template #avatar>
 											<n-avatar
-											src="https://cdnimg103.lizhi.fm/user/2017/02/04/2583325032200238082_160x160.jpg"
+											src="images/user.png"
 											/>
 										</template>
 										</n-tag>
@@ -106,6 +122,10 @@
 								<div style="display: flex; justify-content: ">   
 									<n-space>
 										<n-button round type="success" secondary @click="editWechat()">编辑</n-button>
+                    <n-button round type="success" secondary @click="ModalShow=true">发送消息测试</n-button>  	
+										<n-spin size="small" v-if="showmodel.testingWechat_spin" stroke="#21a35c">
+											<n-button round :bordered="false">消息发送中...</n-button>
+										</n-spin>
 									</n-space>  
 								</div> 
 								</n-form>
@@ -118,10 +138,10 @@
 									:style="{maxWidth: '640px'}"
 									v-else
 								>     
-								<n-form-item label="Webhook URL" >
+								<n-form-item label="Webhook URL:" >
 									<n-input placeholder="Input" round v-model:value="model.curl"></n-input>	
 								</n-form-item> 
-								<n-form-item label="特别提醒">  
+								<n-form-item label="特别提醒:">  
 								<n-select      
 									v-model:value="alluser"
 									placeholder="Select"      
@@ -130,15 +150,15 @@
 									round    
 								/>   
 								</n-form-item>  
-								<n-form-item label="消息类型" >     
+								<n-form-item label="消息类型:" >     
 									<n-radio-group  name="radiogroup2" v-model:value="messagetype">    
-									<n-radio value="1">    
+									<n-radio value="text">    
 									文本类型  
 									</n-radio>     
-									<n-radio value="2">      
+									<n-radio value="markdown">      
 									markdown类型      
 									</n-radio>    
-									<n-radio value="3">     
+									<n-radio value="picture">     
 									图片类型    
 									</n-radio>     
 									</n-radio-group>   
@@ -153,7 +173,12 @@
 									</n-space>
 								</div> 
 								</n-form>
-								<n-modal :show="ModalShow">
+							</div>
+						</n-collapse-item>
+						<!--邮件-->
+						<n-collapse-item title="邮件" v-if="mail" name="mail">
+              <div>
+                <n-modal :show="MailModalShow">
 									<n-card
 									style="width:600px"
 									:bordered="false"
@@ -161,23 +186,76 @@
 									role="dialog"
 									aria-modal="true"
 									>
-									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value=wechatModel.content.text.content></n-input>
+									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！"></n-input>
 									<p></p>
 									<n-space>
-										<n-button round @click="TestWechatChange()">发送</n-button>
-										<n-button round @click="ModalShow=false">取消</n-button>
+										<n-button round @click="TestMailChange()">发送</n-button>
+										<n-button round @click="MailModalShow=false">取消</n-button>
 									</n-space>
 									</n-card>
 								</n-modal>
+								<n-form        
+									label-placement="left"     
+									label-width="auto" 
+									require-mark-placement="right-hanging"
+									:size="size"  
+									:style="{       maxWidth: '640px'     }"   
+									v-if="!editmail"
+								>     
+								<n-form-item label="邮箱账号:" >
+									<n-tag :bordered="true" round>{{phonemodel.phone}}</n-tag>
+								</n-form-item>  
+								<div style="display: flex; justify-content: ">     
+									<n-space>
+										<n-button round type="primary" dashed  @click="editMail()">编辑</n-button> 	
+									</n-space>
+									</div> 
+								</n-form>
+								
+								<n-form        
+									label-placement="left"     
+									label-width="auto" 
+									require-mark-placement="right-hanging"
+									:size="size"  
+									:style="{       maxWidth: '640px'     }"   
+									v-else
+								>     
+								<n-form-item label="邮箱账号:" >
+									<n-input round stroke="blue" placeholder="Input" v-model:value="phonemodel.phone"></n-input>	
+								</n-form-item>  
+	
+								<div style="display: flex; justify-content: ">     
+									<n-space>
+										<n-button round type="primary" dashed @click="saveChange_mail()">保存</n-button>  
+										<n-button round type="primary" dashed @click="MailModalShow=true">发送邮件测试</n-button>  	
+										<n-spin size="small" v-if="showmodel.testingmail_spin" stroke="#21a35c">
+											<n-button round :bordered="false">邮件测试信息发送中...</n-button>
+										</n-spin>
+									</n-space>
+									
+								</div> 
+								</n-form>
 							</div>
-						</n-collapse-item>
-						<!--邮件-->
-						<n-collapse-item title="邮件" v-if="mail" name="mail">
-						Todo
 						</n-collapse-item>
 						<!--电话-->
 						<n-collapse-item title="电话" v-if="phone" name="phone">
 							<div>
+                <n-modal :show="PhoneModalShow">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！"></n-input>
+									<p></p>
+									<n-space>
+										<n-button round @click="TestSmsChange('phone')">发送</n-button>
+										<n-button round @click="PhoneModalShow=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
 								<n-form        
 									label-placement="left"     
 									label-width="auto" 
@@ -224,26 +302,10 @@
 								<div style="display: flex; justify-content: ">     
 									<n-space>
 										<n-button round secondary type="info" @click="saveChange_phone()">保存</n-button>  
-										<n-button round secondary type="info" @click="SmsModalShow=true">拨通电话测试</n-button>  	
+										<n-button round secondary type="info" @click="PhoneModalShow=true">拨通电话测试</n-button>  	
 										<n-spin size="small" v-if="showmodel.testingphone_spin" stroke="#21a35c">
 											<n-button round :bordered="false">电话拨通中...</n-button>
 										</n-spin>
-										<n-modal :show="SmsModalShow">
-											<n-card
-											style="width:600px"
-											:bordered="false"
-											size="huge"
-											role="dialog"
-											aria-modal="true"
-											>
-											<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！"></n-input>
-											<p></p>
-											<n-space>
-												<n-button round @click="TestSmsChange()">发送</n-button>
-												<n-button round @click="SmsModalShow=false">取消</n-button>
-											</n-space>
-											</n-card>
-										</n-modal>
 									</n-space>
 									
 								</div> 
@@ -253,6 +315,22 @@
 						<!--短信-->
 						<n-collapse-item title="短信" v-if="sms" name="sms">
 							<div>
+                <n-modal :show="SmsModalShow">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<n-input status="warning" type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value="smsmodel.message"></n-input>
+									<p></p>
+									<n-space>
+										<n-button round @click="TestSmsChange('sms')">发送</n-button>
+										<n-button round @click="SmsModalShow=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
 								<n-form        
 									label-placement="left"     
 									label-width="auto" 
@@ -302,24 +380,7 @@
 										<n-spin size="small" v-if="showmodel.testingsms_spin" stroke="#f5d1ab">
 											<n-button round :bordered="false">短信发送中...</n-button>
 										</n-spin>
-										<n-modal :show="SmsModalShow">
-											<n-card
-											style="width:600px"
-											:bordered="false"
-											size="huge"
-											role="dialog"
-											aria-modal="true"
-											>
-											<n-input status="warning" type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value="smsmodel.message"></n-input>
-											<p></p>
-											<n-space>
-												<n-button round @click="TestSmsChange()">发送</n-button>
-												<n-button round @click="SmsModalShow=false">取消</n-button>
-											</n-space>
-											</n-card>
-										</n-modal>
 									</n-space>
-									
 								</div> 
 								</n-form>
 							</div>
@@ -356,18 +417,22 @@ export default {
 
 			ModalShow:ref(false),
 			SmsModalShow:ref(false),
+			PhoneModalShow:ref(false),
+      MailModalShow:ref(false),
 
 			showmodel:reactive({
 				testingWechat_spin:ref(false),
 				testingsms_spin:ref(false),
 				testingphone_spin:ref(false),
+        testingmail_spin:ref(false),
 			}),
 				
 			editwechat:ref(true),
 			editsms:ref(false),
 			editphone:ref(true),
+      editmail:ref(true),
 
-			messagetype:ref("1"),
+			messagetype:ref("text"),
 			
 			model:reactive({
 				curl:"",
@@ -423,12 +488,14 @@ export default {
 		editWechat(){	this.editwechat = true	},
 		editSms(){	this.editsms = true;	},
 		editPhone(){	this.editphone = true;	},
+    editMail(){	this.editmail = true;	},
 
 		setRefreshTime(){
 			this.$refresh_time=this.timeRefresh;
 
 			//var v =getCurrentInstance()?.appContext.config.globalProperties.$refresh_time;
-			console.log(this.$refresh_time)
+			//console.log(this.$refresh_time)
+      window.$message.success('刷新时间成功设置为 '+this.timeRefresh+' s', { duration: 5e3 })
 		},
 		
 		saveChange(){
@@ -463,7 +530,11 @@ export default {
 		saveChange_phone(){
 			if(this.checkValidity()){
 				this.editphone = false
-				//console.log(this.model)	
+			}
+		},
+    saveChange_mail(){
+			if(this.checkValidity()){
+				this.editmail = false
 			}
 		},
 
@@ -476,10 +547,15 @@ export default {
 			this.wechatModel.curl=this.model.curl
 			this.wechatModel.content.msgtype=this.model.messagetype
 			this.wechatModel.content.text.mentioned_list = this.model.user
+      this.wechatModel.content.text.mentioned_list.forEach(function(item, index, array){
+        if(item==="all"){
+					array[index]="@"+item
+        }
+      })
 
 			var sendMessageTestUrl = this.global_api + "/WeComText?url="+this.wechatModel.curl+"&content="+JSON.stringify(this.wechatModel.content)
 			
-			console.log(this.global_api)
+			console.log(sendMessageTestUrl)
 			var config = {
 				method: 'post',
 				url: sendMessageTestUrl
@@ -490,7 +566,6 @@ export default {
 				console.log(JSON.stringify(res.data));
 				this.showmodel.testingWechat_spin=false
 				if(res.data.errcode==0){
-					//this.notify('success')
 					window.$message.success('发送成功，请前往企业微信群查看验证！', { duration: 5e3 })
 				}
 				else{
@@ -502,12 +577,33 @@ export default {
 				console.log(err)
 				window.$message.error(err.message, { duration: 5e3 })
 			});
+      
+      this.showmodel.testingWechat_spin=false
 		},
 
-		TestSmsChange(){
-			this.SmsModalShow=false
+		TestSmsChange(type){
+			
 			this.showmodel.testingsms_spin=true
-			var model = this.smsmodel
+
+			var model
+			var msg
+			var phonemsg={
+				success:'拨通电话成功，请注意查收！',
+				fail:'拨通电话失败，请检查接口是否正常！',
+			}
+			var smsmsg={
+				success:'短信发送成功，请注意查看短信验证！',
+				fail:'短信发送失败，请检查接口是否正常！'
+			}
+			if(type==="phone"){
+				this.PhoneModalShow=false
+				model = this.phonemodel
+				msg = phonemsg
+			}else{
+				this.SmsModalShow=false
+				model = this.smsmodel
+				msg = smsmsg
+			}
 			var sendMessageTestUrl =  this.global_api + "?url="
 				+model.url+"&phone="
 				+model.phone
@@ -524,10 +620,10 @@ export default {
 				console.log(JSON.stringify(res.data));
 				this.showmodel.testingsms_spin=false
 				if(res.data.return_code=="00000"){
-					window.$message.success('发送成功，请注意查看短信验证！', { duration: 5e3 })
+					window.$message.success(msg.success, { duration: 5e3 })
 				}
 				else{
-					window.$message.warning('发送失败，请检查接口是否保熟！', { duration: 5e3 })
+					window.$message.warning(msg.fail, { duration: 5e3 })
 				}
 			})
 			.catch((err)=>{
@@ -536,11 +632,11 @@ export default {
 				window.$message.error(err.message, { duration: 5e3 })
 			});
 		},
-
-		sendMessageTest(){
-			this.testModelShow=true
-		},
-
+    
+    TestMailChange(){
+			this.MailModalShow=false
+      window.$message.info("Todo", { duration: 5e3 })
+    },
 
 		//校验合法性
 		checkValidity(){
@@ -551,13 +647,13 @@ export default {
 			const settingservice=new SettingService();
 			this.model=settingservice.getWechatSetting()
 			switch(this.messagetype){
-				case "1":
+				case "text":
 					this.model.messagetype = "text"
 					break;
-				case "2":
+				case "markdown":
 					this.model.messagetype = "markdown"
 					break;
-				case "3":
+				case "picture":
 					this.model.messagetype = "picture"
 					break;
 				default:

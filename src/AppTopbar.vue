@@ -110,7 +110,8 @@ export default {
       this.$emit('topbar-menu-toggle', event);
     },
 		topbarImage() {
-			return this.$appState.darkTheme ? 'images/logo-white.svg' : 'images/logo-dark.svg';
+			//return this.$appState.darkTheme ? 'images/logo-white.svg' : 'images/logo-dark.svg';
+      return 'images/monitor.png'
 		},
 		fullScreanClick(){
 			if(screenfull.isEnabled){

@@ -1,24 +1,27 @@
 <template>
-  <n-message-provider>
-    <div :class="containerClass" @click="onWrapperClick">
-        <AppTopBar @menu-toggle="onMenuToggle" />
-        <div class="layout-sidebar" @click="onSidebarClick">
-            <AppMenu :model="menu" @menuitem-click="onMenuItemClick" />
-        </div>
-
-        <div class="layout-main-container">
-            <div class="layout-main">
-              <router-view />
-            </div>
-            <AppFooter />
-        </div>
-
-		<AppConfig :layoutMode="layoutMode" @layout-change="onLayoutChange" />
-        <transition name="layout-mask">
-            <div class="layout-mask p-component-overlay" v-if="mobileMenuActive"></div>
-        </transition>
-	</div>  
-  </n-message-provider>
+  <n-scrollbar>
+    <n-message-provider style="max-height: 120px">
+      <div :class="containerClass" @click="onWrapperClick">
+          <AppTopBar @menu-toggle="onMenuToggle" />
+          <div class="layout-sidebar" @click="onSidebarClick">
+              <AppMenu :model="menu" @menuitem-click="onMenuItemClick" />
+          </div>
+  
+          <div class="layout-main-container">
+              <div class="layout-main">
+                <router-view />
+              </div>
+              <AppFooter />
+          </div>
+  
+        <AppConfig :layoutMode="layoutMode" @layout-change="onLayoutChange" />
+          <transition name="layout-mask">
+              <div class="layout-mask p-component-overlay" v-if="mobileMenuActive"></div>
+          </transition>
+    </div>  
+    </n-message-provider>	
+  </n-scrollbar>
+  
 	
   
 </template>
