@@ -66,7 +66,7 @@ export default {
 								{
 									label: '用户设置', icon: 'pi pi-fw pi-sitemap',
 									items: [
-										{label: '登录', icon: 'pi pi-fw pi-id-card', to: '/login'},
+										{label: '用户中心', icon: 'pi pi-fw pi-id-card', to: '/'},
 										{label: '设置', icon: 'pi pi-fw pi-id-card', to: '/setting'},
 									]
 								},

@@ -27,7 +27,7 @@
 			<li v-tooltip.bottom="fullscreen.value">
 				<!--<icon-gridicons-fullscreen  class="text-18px" />-->
 				<button class="p-link layout-topbar-button" @click="fullScreanClick()">
-						<i class="pi pi-stop"></i>
+						<i class="pi pi-th-large"></i>
 						<!--<icon-gridicons-fullscreen v-else class="text-18px" />-->
 						<span>全屏/退出全屏</span>
 				</button>
@@ -36,6 +36,12 @@
 				<button class="p-link layout-topbar-button" @click="gotoLog()">
 					<i class="pi pi-calendar" v-badge.danger="'10'"></i>
 					<span>事件</span>
+				</button>
+			</li>
+      <li v-tooltip.bottom="'主页'">
+				<button class="p-link layout-topbar-button" @click="gotoHome()">
+					<i class="pi pi-home" v-badge.danger="'10'"></i>
+					<span>主页</span>
 				</button>
 			</li>
 			<li v-tooltip.bottom="'设置'">
@@ -87,6 +93,7 @@ export default {
 			overlayMenuItems: [
 					{
 						label: 'Admin',
+            to:'/login',
 						icon: 'pi pi-user-edit'
 					},
 					{
@@ -94,7 +101,9 @@ export default {
 					},
 					{
 						label: '退出登录',
-						icon: 'pi pi-sign-out'
+            to:'/login',
+						icon: 'pi pi-sign-out',
+            
 					},
 				],
 		}
@@ -117,7 +126,7 @@ export default {
 			if(screenfull.isEnabled){
 				if(screenfull.isFullscreen){
 					screenfull.exit()
-					this.fullscreen.value = "退出全屏"
+					this.fullscreen.value = "全屏"
 				}else{
 					screenfull.toggle()
 					this.fullscreen.value = "退出全屏"
@@ -166,6 +175,10 @@ export default {
     
     gotoSetting(){
 			this.$router.push("/setting")
+    },
+    
+    gotoHome(){
+			this.$router.push("/")
     },
 
 	gotoLog(){

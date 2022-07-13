@@ -1,39 +1,51 @@
 <template>
 	<div class="grid">
 		<div v-for="item in cardData.value" :key="item.id" class="col-12 lg:col-6 xl:col-3">
-			<div v-if="item.state" class="card mb-0" style="height: 110px;">
+			<div v-if="item.state" class="card mb-0" style="height: 90px;">
 				<div  class="flex justify-content-between mb-3">
 					<div>
-						<span class="block text-500 font-medium mb-3">{{item.title}}</span>
+						<span class="block text-500 font-medium mb-3">服务：{{item.title}}</span>
+            <span class="block text-500 font-medium mb-3">状态：异常</span>
 					</div>
-					<Button v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" />
+					<Button v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)"/>
 				</div>
-				<a v-if="item.id=='apips'" href="https://apips.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span class="text-green-500 font-medium">查看详情 </span>
-				</a>
-				<a v-else-if="item.id=='apipsinfo'" href="https://apipsinfo.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span class="text-green-500 font-medium">查看详情 </span>
-				</a>
-				<a v-else-if="item.id=='apipsoa'" href="https://apipsoa.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span class="text-green-500 font-medium">查看详情 </span>
-				</a>
 			</div>
-			<div v-else class="card mb-0" style="height: 110px;">
+			<div v-else class="card mb-0" style="height: 90px;">
 				<div class="flex justify-content-between mb-3">
 					<div>
-						<span class="block text-500 font-medium mb-3">{{item.title}}</span>
+						<span class="block text-500 font-medium mb-3">服务：{{item.title}}</span>
+            <span class="block text-500 font-medium mb-3">状态：异常</span>
 					</div>
-					<Button v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" />
+					<Button v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)" />
 				</div>
-				<a v-if="item.id=='apips'" href="https://apips.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span style="margin-bottom 50px;" class="text-orange-500 font-medium">查看详情 </span>
-				</a>
-				<a v-else-if="item.id=='apipsinfo'" href="https://apipsinfo.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span style="margin-bottom 50px;" class="text-orange-500 font-medium">查看详情 </span>
-				</a>
-				<a v-else-if="item.id=='apipsoa'" href="https://apipsoa.appeon.com/health" target="blank" style="margin-bottom 50px;">
-					<span style="margin-bottom 50px;" class="text-orange-500 font-medium">查看详情 </span>
-				</a>
+			</div>
+		</div>
+    <div class="col-12 lg:col-6 xl:col-3">
+			<div class="card mb-0" style="height: 90px;text-align:center;" >
+				<Button v-tooltip.bottom="'添加'" icon="pi pi-plus" class="p-button-rounded p-button-text" @click="addCheckItemModalShow=true"/>	
+        <n-modal :show="addCheckItemModalShow">
+          <n-card 
+          style="width:600px" 
+          :bordered="false" 
+          size="huge" 
+          role="dialog" 
+          aria-modal="true"
+          >
+          <!--<n-form :rules="rules">
+						
+          </n-form>-->
+            <n-input placeholder="输入名称！" v-model:value="newStateItem.title"></n-input>
+            <p></p>
+            <n-input placeholder="输入链接！" v-model:value="newStateItem.healthUrl"></n-input>
+            <p></p>
+            
+
+						<n-space>
+							<n-button round @click="addCheckItem()">确定</n-button>
+							<n-button round @click="addCheckItemModalShow=false">取消</n-button>
+						</n-space>
+          </n-card>
+        </n-modal>
 			</div>
 		</div>
 		
@@ -217,7 +229,7 @@
 <script>
 import EventBus from '@/AppEventBus';
 import ProductService from '../service/ProductService';
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { Liquid, Radar, Line} from '@antv/g2plot';
 import { NDataTable, NGrid, NGridItem, NTimeline, NTimelineItem } from 'naive-ui';
 import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './Graph'
@@ -278,7 +290,15 @@ export default {
 			timelines_warning,
 			lineshow,
 
-			global_refresh_time
+			global_refresh_time,
+      addCheckItemModalShow:ref(false),
+      
+      newStateItem:{
+          id:"apips",
+          state: false,
+          title: '',
+          healthUrl: ''	
+      },
 		}
 	},
 	
@@ -511,6 +531,25 @@ export default {
 			
 			return dates.getFullYear()+'-'+dates.getMonth()+'-'+dates.getDate()+' '+hour + ':' + minute + ':' + seconds;
 		},
+    
+    linkToHealthUrl(url){
+			window.open(url, '_blank')
+    },
+    
+    addCheckItem(){
+      //Todo
+//      var newItem={
+//        id:"apips11",
+//        state: false,
+//        title: 'apips.appeon.com11',
+//        healthUrl: 'https://apips.appeon.com/health'
+//      }
+      
+      console.log(this.newStateItem)
+      this.cardData.value.push(this.newStateItem)
+      
+			this.addCheckItemModalShow=false
+    },
 		
 		dataAccuracy(value){
 			return Number(math.format(value, 14));
