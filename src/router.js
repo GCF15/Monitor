@@ -32,6 +32,36 @@ const routes = [
                 meta: { title: "集群节点" }
             },
             {
+                path: '/cpu',
+                name: 'cpu',
+                component: () => import('./components/detail/CPU.vue'),
+                meta: { title: "CPU" }
+            },
+            {
+              path: '/gpu',
+              name: 'gpu',
+              component: () => import('./components/detail/GPU.vue'),
+              meta: { title: "GPU" }
+            },
+            {
+              path: '/memory',
+              name: 'memory',
+              component: () => import('./components/detail/Memory.vue'),
+              meta: { title: "内存" }
+            },
+            {
+                path: '/disk',
+                name: 'disk',
+                component: () => import('./components/detail/Disk.vue'),
+                meta: { title: "磁盘" }
+          },
+          {
+            path: '/user',
+            name: 'user',
+            component: () => import('./components/User.vue'),
+            meta: { title: "用户中心" }
+          },
+            {
               path: '/setting',
               name: 'setting',
               component: () => import('./components/Setting.vue'),

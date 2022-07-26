@@ -9,7 +9,7 @@
 				<n-divider title-placement="left">
 					<n-h3 prefix="bar" align-text>
 						<n-text type="primary">
-							间隔刷新时间
+							时间设置
 						</n-text>
 					</n-h3>
 				</n-divider>
@@ -22,8 +22,15 @@
 								:size="size"  
 								:style="{       maxWidth: '640px'     }"    
 							> 
-						<n-form-item label="请输入" >
-							<n-input-number v-model:value="timeRefresh" :show-button="true" clearable round style="width:200px;">
+						<n-form-item label="报警间隔时间" >
+							<n-input-number v-model:value="timeRefresh" :show-button="true" clearable round style="width:150px;">
+								<template #suffix>s</template>
+							</n-input-number>
+							<n-button style="margin-left:20px;" round secondary type="success" @click="setAlertTime()">应用</n-button>
+						</n-form-item>  
+            
+            <n-form-item label="数据刷新时间" >
+							<n-input-number v-model:value="timeRefresh" :show-button="true" clearable round style="width:150px;">
 								<template #suffix>s</template>
 							</n-input-number>
 							<n-button style="margin-left:20px;" round secondary type="success" @click="setRefreshTime()">应用</n-button>
@@ -203,7 +210,7 @@
 									v-if="!editmail"
 								>     
 								<n-form-item label="邮箱账号:" >
-									<n-tag :bordered="true" round>{{phonemodel.phone}}</n-tag>
+									<n-tag :bordered="true" round>{{emailmodel.email}}</n-tag>
 								</n-form-item>  
 								<div style="display: flex; justify-content: ">     
 									<n-space>
@@ -221,7 +228,7 @@
 									v-else
 								>     
 								<n-form-item label="邮箱账号:" >
-									<n-input round stroke="blue" placeholder="Input" v-model:value="phonemodel.phone"></n-input>	
+									<n-input round stroke="blue" placeholder="Input" v-model:value="emailmodel.email"></n-input>	
 								</n-form-item>  
 	
 								<div style="display: flex; justify-content: ">     
@@ -409,6 +416,7 @@ export default {
 	data(){
 		return{
 			timeRefresh:ref(5),
+      settingService:new SettingService(),
 
 			wechat:ref(true),
 			mail:ref(false),
@@ -467,6 +475,10 @@ export default {
 				templateid:"",
 				appcode:""
 			}),
+      
+      emailmodel:ref({
+				email:""
+      }),
 			
 			generalOptions:[],
 			
@@ -497,6 +509,17 @@ export default {
 			//console.log(this.$refresh_time)
       window.$message.success('刷新时间成功设置为 '+this.timeRefresh+' s', { duration: 5e3 })
 		},
+    
+    setAlertTime(){
+			this.settingService.setTimeRefresh(this.timeRefresh).then(res=>{
+					if(res.data==='Started'){
+						window.$message.success("成功将报警间隔时间设置为： "+this.timeRefresh+"s")
+          }
+          else{
+						window.$message.error("设置失败")
+          }
+        })
+    },
 		
 		saveChange(){
 			if(this.checkValidity()){
@@ -604,7 +627,7 @@ export default {
 				model = this.smsmodel
 				msg = smsmsg
 			}
-			var sendMessageTestUrl =  this.global_api + "?url="
+			var sendMessageTestUrl =  this.global_api + "/phoneormessage?url="
 				+model.url+"&phone="
 				+model.phone
 				+"&templateId="+model.templateid
@@ -663,6 +686,7 @@ export default {
 
 			this.smsmodel=settingservice.getSmsSetting()
 			this.phonemodel=settingservice.getPhoneSetting()
+      this.emailmodel=settingservice.getMailSetting()
 			
 			this.model.user.forEach(element => {
 				this.alluser.push(element)

@@ -16,29 +16,51 @@
 			</div>
 			
 			<n-divider title-placement="left">
-				<b>间隔刷新时间</b>
+				<b>启动状态报警</b>
 			</n-divider>
 			
-			<n-input round :placeholder=refreshTime>
-					<template #suffix>秒</template>
-			</n-input>
+			<n-switch v-model:value="activeAlert" @update:value="handleActiveAlertChange" >
+        <template #checked>
+          已启动报警
+        </template>
+        <template #unchecked>
+          已关闭报警
+        </template>
+      </n-switch>
 			
-			<n-divider title-placement="left">
-				<b>报警方式</b>
+			
+      <div v-if="activeAlert">
+      <n-divider title-placement="left">
+				<b>刷新时间</b>
 			</n-divider>
-			<n-checkbox-groud :value="selectAlert">
-				<n-space>
-					<n-checkbox value="3" label="企业微信" size="medium"></n-checkbox>
-					<n-checkbox value="0" label="邮件" size="medium"></n-checkbox>
-					<n-checkbox value="1" label="短信" size="medium"></n-checkbox>
-					<n-checkbox value="2" label="电话" size="medium"></n-checkbox>
-				</n-space>
-			</n-checkbox-groud>
-			<p></p>
-			<div class="p-formfroup-inline">
-				<n-button tertiary round type="success" @click="applyRefreshTineSet()">应用</n-button>
-				<n-button tertiary round type="success" style="margin-left:10px;" @click="moreSetting()">更多设置</n-button>
-			</div>
+        <n-input v-model:value="refreshTime" round :placeholder=refreshTime >
+          <template #suffix>秒</template>
+        </n-input>
+        <p></p>
+        <div class="p-formfroup-inline">
+          <n-button tertiary round type="success" @click="applyRefreshTineSet()">应用</n-button>
+        </div>	
+      </div>
+      
+			<div v-if='activeAlert'>
+        <n-divider title-placement="left">
+          <b>报警方式</b>
+        </n-divider>
+        <n-checkbox-groud :value="selectAlert">
+          <n-space>
+            <n-checkbox value="0" label="邮件" size="medium"></n-checkbox>
+            <n-checkbox value="3" label="企业微信" size="medium"></n-checkbox>
+            <n-checkbox value="1" label="短信" size="medium"></n-checkbox>
+            <n-checkbox value="2" label="电话" size="medium"></n-checkbox>
+          </n-space>
+        </n-checkbox-groud>
+        <p></p>
+        <div class="p-formfroup-inline">
+          <n-button tertiary round type="success" @click="applyRefreshTineSet()">应用</n-button>
+          <n-button tertiary round type="success" style="margin-left:10px;" @click="moreSetting()">更多设置</n-button>
+        </div>	
+      </div>
+			
 			
 			<n-divider title-placement="left">
 				<b>菜单类型</b>
@@ -123,9 +145,14 @@
 
 <script>
 import EventBus from './AppEventBus';
+import {ref} from 'vue';
 import { NInput,NButton,useMessage } from 'naive-ui';
+import SettingService from './service/SettingService.js'
 
 	export default {
+		setup() {
+      window.$message = useMessage()
+    },
 		components:{
 			NInput,NButton
 		},
@@ -136,15 +163,17 @@ import { NInput,NButton,useMessage } from 'naive-ui';
 			}
 		},
 		data() {
-			let refreshTime=5
-			//const message = useMessage();
+			//var refreshTime=ref(5)
+			var settingService = new SettingService()
 			
 			return {
 				active: false,
 				d_layoutMode: this.layoutMode,
 				scale: 14,
 				scales: [12,13,14,15,16],
-				refreshTime,
+				refreshTime:ref(5),
+				activeAlert: ref(true),
+        settingService
 				//message
 			}
 		},
@@ -176,9 +205,15 @@ import { NInput,NButton,useMessage } from 'naive-ui';
 				this.$router.push("/setting")
 			},
 			applyRefreshTineSet(){
-				const message = useMessage();
-				//message.warning("成功将刷新时间设置为：",{})
-				message.success("123456")
+        this.settingService.setTimeRefresh(this.refreshTime).then(res=>{
+					if(res.data==='Started'){
+						window.$message.success("成功将报警间隔时间设置为： "+this.refreshTime+"s")
+          }
+          else{
+						window.$message.error("设置失败")
+          }
+        })
+				
 			},
 			toggleConfigurator(event) {
 				this.active = !this.active;
@@ -193,6 +228,35 @@ import { NInput,NButton,useMessage } from 'naive-ui';
 				this.active = false;
 				this.unbindOutsideClickListener();
 				event.preventDefault();
+			},
+			handleActiveAlertChange(value){
+        //var settingService = new SettingService()
+        try{
+          if(value){
+            this.settingService.startAlert().then(res=>{
+              if(res.data==='Started'){
+                window.$message.success('已启用报警机制');
+              }
+              else{
+                window.$message.error('启用报警机制失败');
+                this.activeAlert=false
+              }
+            })
+          }else{
+            this.settingService.stopAlert().then(res=>{
+                if(res.data==='Stoped'){
+                window.$message.success('已关闭报警机制');
+              }
+              else{
+                window.$message.error('关闭报警机制失败');
+                this.activeAlert=true
+              }
+            })
+          }	
+        }catch{
+					window.$message.error('操作失败');
+        }
+        
 			},
 			changeInputStyle(value) {
 				this.$primevue.config.inputStyle = value;

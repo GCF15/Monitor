@@ -1,17 +1,10 @@
 import axios from 'axios'
 
 export default class ApipsService {
-	getapipsstate(){	
-        return (axios.get("http://172.25.13.5:88/api/Health?url=https://apips.appeon.com/health"));
-	}
-	
-	getapipsinfostate(){
-        return (axios.get("http://172.25.13.5:88/api/Health?url=https://apipsinfo.appeon.com/health"));
-    }
 
-    getapipsoastate() {
-        return (axios.get("http://172.25.13.5:88/api/Health?url=https://apipsoa.appeon.com/health"));
-    }
-  
-  //getapips2
+  getapistate(url){
+    var checkUrl = "http://192.168.158.17:31729/api/Health?url="+url
+    return (axios.get(checkUrl));
+  }
+      
 }

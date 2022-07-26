@@ -1,28 +1,31 @@
 <template>
 	<div class="grid">
 		<div v-for="item in cardData.value" :key="item.id" class="col-12 lg:col-6 xl:col-3">
-			<div v-if="item.state" class="card mb-0" style="height: 90px;">
+			<div class="card mb-0" style="height: 90px;">
 				<div  class="flex justify-content-between mb-3">
 					<div>
-						<span class="block text-500 font-medium mb-3">服务：{{item.title}}</span>
-            <span class="block text-500 font-medium mb-3">状态：异常</span>
+						<span class="block text-500 font-medium mb-3">{{item.title}}</span> 
+            <span>
+							<b v-tooltip.bottom="'编辑'" @click="editCheckItem(item)">Edit</b>
+              <n-popconfirm
+                @positive-click="deleteCheckItem(item)"
+                @negative-click="handleNegativeClick"
+              >
+                <template #trigger>
+                  <a v-tooltip.bottom="'删除'" style="margin-left:20px">delete</a>
+                </template>
+                确定要移除 “{{item.title}}” 吗？
+              </n-popconfirm>
+              </span>
 					</div>
-					<Button v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)"/>
-				</div>
-			</div>
-			<div v-else class="card mb-0" style="height: 90px;">
-				<div class="flex justify-content-between mb-3">
-					<div>
-						<span class="block text-500 font-medium mb-3">服务：{{item.title}}</span>
-            <span class="block text-500 font-medium mb-3">状态：异常</span>
-					</div>
-					<Button v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)" />
-				</div>
+					<Button v-if="item.state" v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)"/>
+          <Button v-else v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)" />
+        </div>
 			</div>
 		</div>
     <div class="col-12 lg:col-6 xl:col-3">
 			<div class="card mb-0" style="height: 90px;text-align:center;" >
-				<Button v-tooltip.bottom="'添加'" icon="pi pi-plus" class="p-button-rounded p-button-text" @click="addCheckItemModalShow=true"/>	
+				<Button v-tooltip.bottom="'添加'" icon="pi pi-plus" class="p-button-rounded p-button-text" @click="editCheckItem(null)"/>	
         <n-modal :show="addCheckItemModalShow">
           <n-card 
           style="width:600px" 
@@ -31,15 +34,10 @@
           role="dialog" 
           aria-modal="true"
           >
-          <!--<n-form :rules="rules">
-						
-          </n-form>-->
             <n-input placeholder="输入名称！" v-model:value="newStateItem.title"></n-input>
             <p></p>
             <n-input placeholder="输入链接！" v-model:value="newStateItem.healthUrl"></n-input>
             <p></p>
-            
-
 						<n-space>
 							<n-button round @click="addCheckItem()">确定</n-button>
 							<n-button round @click="addCheckItemModalShow=false">取消</n-button>
@@ -52,11 +50,10 @@
 	</div>
 	<p></p>
 	<div class="grid p-fluid">
-			<div class="col-12 lg:col-6">
-				<h5>Ubuntu-master1</h5>
-				<div class="card">
+			<div class="col-8 lg:col-4">
 					
-					<n-grid :x-gap="18" :y-gap="16" :item-responsive="true" cols='1'>
+        <Panel header="Ubuntu-master1" :toggleable="true" v-model:collapsed="isCollapsed">
+          <n-grid :x-gap="18" :y-gap="16" :item-responsive="true" cols='1'>
 						<n-grid-item>
 							<n-data-table 
 								:bordered=false 
@@ -70,10 +67,12 @@
 						<n-grid-item>
 							
 						</n-grid-item>
-					</n-grid>
-				</div>
-				<h5>时间线-事件记录</h5>
-				<div class="card">
+					</n-grid>  
+        </Panel>
+          
+        <p></p>
+          
+				<Panel header="时间线-事件记录" :toggleable="true" :collapsed="false">
 					<n-grid :x-gap="18" :y-gap="16" :item-responsive="true" cols='2'>
 						<n-grid-item>
 							<p>警告</p>
@@ -92,11 +91,11 @@
 							</n-timeline>
 						</n-grid-item>
 					</n-grid>
-				</div>
+				</Panel>
 			</div>
-			<div class="col-12 lg:col-6">
-				<h5 class="align-self-start">资源用量</h5>
-				<div class="card flex flex-column align-items-center">
+			<div class="col-16 lg:col-8">
+        <Panel header="资源用量" :toggleable="true" :collapsed="false">
+				<div class="flex flex-column align-items-center">
 					<div style="width:100%;height: 100%;">
 						<div class="leftbox" id="containerRadar">
 						</div>
@@ -220,7 +219,7 @@
 					</div>
 					<div id="containerline"></div>
 				</div>
-	
+        </Panel>
 			</div>	
 		</div>
 		
@@ -232,8 +231,8 @@ import ProductService from '../service/ProductService';
 import { reactive, ref } from 'vue'
 import { Liquid, Radar, Line} from '@antv/g2plot';
 import { NDataTable, NGrid, NGridItem, NTimeline, NTimelineItem } from 'naive-ui';
-import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './Graph'
-import { linedata_default, carddata_default, radardata_default, tabledata_default, columns_default, timeline_warn_default, timeline_error_default } from './Data'
+import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './js/Graph'
+import { linedata_default, carddata_default, radardata_default, tabledata_default, columns_default, timeline_warn_default, timeline_error_default } from './js/Data'
 import ApipsService from '../service/ApipsService';
 import * as math from  'mathjs';//解决计算精度问题
 //import { TimelineData } from './TimelineData'
@@ -294,7 +293,13 @@ export default {
       addCheckItemModalShow:ref(false),
       
       newStateItem:{
-          id:"apips",
+          id:"123",
+          state: false,
+          title: '',
+          healthUrl: ''	
+      },
+      editStateItem:{
+          id:"0",
           state: false,
           title: '',
           healthUrl: ''	
@@ -434,7 +439,7 @@ export default {
 						this.luquid_CPU.luquidref.changeData(this.luquid_CPU.percentdata);
 						this.luquid_CPU.luquidref.render();
             
-            //this.timelines_warning.value.push({ type: 'warning', title: 'CPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_CPU.percentdata*100)+'%', time: this.formatime() });
+            this.timelines_warning.value.push({ type: 'warning', title: 'CPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_CPU.percentdata*100)+'%', time: this.formatime() });
 					}	
 				}
 				
@@ -460,12 +465,12 @@ export default {
 						this.luquid_GPU.luquidref.changeData(this.luquid_GPU.percentdata);
 						this.luquid_GPU.luquidref.render();
             
-//            this.timelines_warning.value.push({ type: 'warning', title: 'GPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_GPU.percentdata*100)+'%', time: this.formatdate() });
-//            if(this.timelines_warning.value.length>5){
-//              this.timelines_warning.value = this.timelines_warning.value.reverse();
-//							this.timelines_warning.value.pop();
-//              this.timelines_warning.value = this.timelines_warning.value.reverse();
-//            }
+            this.timelines_warning.value.push({ type: 'warning', title: 'GPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_GPU.percentdata*100)+'%', time: this.formatdate() });
+            if(this.timelines_warning.value.length>10){
+              this.timelines_warning.value = this.timelines_warning.value.reverse();
+							this.timelines_warning.value.pop();
+              this.timelines_warning.value = this.timelines_warning.value.reverse();
+            }
             //this.timelines_warning.value.reverse();
           }
 				}
@@ -475,43 +480,77 @@ export default {
 				this.radarPlot.changeData(this.radarData.value)
 				this.radarPlot.render();
 		},
-		updateApisStatus(){
+		async updateApisStatus(){
 			const apipsservice=new ApipsService()
 			
-			for(var i=0; i<this.cardData.value.length;i++)
+      var i=0
+      
+			for(i; i<this.cardData.value.length;i++)
 			{
 				try{
-					var strApiName=this.cardData.value[i].id+"服务异常";
-					var state;
-					switch(this.cardData.value[i].id){
-						case "apips":
-							state=apipsservice.getapipsstate()
-							break;
-						case "apipsinfo":
-							state=apipsservice.getapipsinfostate()
-							break;
-						case "apipsoa":
-							state=apipsservice.getapipsoastate()
-							break;
-					}
-					if(state===true){
-						this.cardData.value[i].state = true;
-					}else if(state===false){
-						this.cardData.value[i].state = false;
-						//添加错误事件显示
-						if(!this.cardData.value[i].state){
-							this.timelines_error.value.push({ type: 'error', title: strApiName, content: '', time: this.formatime() });
-						}	
-					}else{
-						console.log("接口异常")
-					}
+					//var strApiName=this.cardData.value[i].id+"服务异常";
+          await apipsservice.getapistate(this.cardData.value[i].healthUrl).then(res=>{this.checkApiStatus(res,i)})
 				}catch(err){
-					console.log("err.message")
+          this.cardData.value[i].state = false;
 					console.log(err.message)
 				}
-				
 			}
 		},
+    
+    checkApiStatus(res, i){
+					if(res.data.healthStatus==='Healthy'){
+						this.cardData.value[i].state = true;
+					}else{
+						this.cardData.value[i].state = false;
+          }
+        //添加错误事件显示
+        var strApiName=this.cardData.value[i].id+"服务异常";
+        if(!this.cardData.value[i].state){
+          this.timelines_error.value.push({ type: 'error', title: strApiName, content: '', time: this.formatime() });
+        } 
+    },
+    
+    editCheckItem(item){
+			this.addCheckItemModalShow=true
+      console.log(item)
+      if(item!=null){
+        this.newStateItem.id=item.id
+        this.newStateItem.title=item.title
+        this.newStateItem.healthUrl = item.healthUrl	
+      }else{
+				this.newStateItem.title=''
+        this.newStateItem.healthUrl = ''
+        //console.log(this.cardData.value)
+      }
+    },
+    
+    deleteCheckItem(item){
+      
+      
+      let index = this.cardData.value.indexOf(item);
+      if(index!=-1){
+        this.cardData.value.splice(index,1);	
+      }
+      
+    },
+    
+    addCheckItem(){
+      var isNew=true
+
+      this.cardData.value.forEach((item,index,arr)=>{
+				if(item.id==this.newStateItem.id){
+					arr[index].title=this.newStateItem.title
+          arr[index].healthUrl=this.newStateItem.healthUrl
+          isNew=false
+        }
+      })
+      
+      if(isNew){
+        this.cardData.value.push(this.newStateItem)	
+      }
+      
+			this.addCheckItemModalShow=false
+    },
     
     formatime() {
 			const dates = new Date();
@@ -533,22 +572,7 @@ export default {
 		},
     
     linkToHealthUrl(url){
-			window.open(url, '_blank')
-    },
-    
-    addCheckItem(){
-      //Todo
-//      var newItem={
-//        id:"apips11",
-//        state: false,
-//        title: 'apips.appeon.com11',
-//        healthUrl: 'https://apips.appeon.com/health'
-//      }
-      
-      console.log(this.newStateItem)
-      this.cardData.value.push(this.newStateItem)
-      
-			this.addCheckItemModalShow=false
+      window.open(url, '_blank')
     },
 		
 		dataAccuracy(value){
@@ -650,13 +674,13 @@ export default {
 
 <style>
 .leftbox{
-	width: 38%;
+	width: 50%;
 	height: 100%;
 	float: left;
 }
 
 .rightbox{
-	width: 58%;
+	width: 50%;
 	height: 100%;
 	float: right;
 }

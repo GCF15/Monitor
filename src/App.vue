@@ -44,7 +44,7 @@ export default {
                 {
                     label: '监控中心',
                     items: [
-											{label: '主控制台', icon: 'pi pi-fw pi-home', to: '/',},
+											{label: '显示中心', icon: 'pi pi-fw pi-home', to: '/',},
 										]
                 },
 								{
@@ -57,16 +57,16 @@ export default {
 									label: '负载详情', icon: 'pi pi-fw pi-sitemap',
 									items: [
 										{label: '集群节点', icon: 'pi pi-fw pi-id-card', to: '/clusternode'},
-                    {label: 'GPU', icon: 'pi pi-fw pi-id-card', to: '/log'},
+                    {label: 'CPU', icon: 'pi pi-fw pi-id-card', to: '/cpu'},
                     {label: '容器组', icon: 'pi pi-fw pi-id-card', to: '/containergroup'},
-                    {label: '内存', icon: 'pi pi-fw pi-id-card', to: '/log'},
-                    {label: '磁盘', icon: 'pi pi-fw pi-id-card', to: '/log'},
+                    {label: '内存', icon: 'pi pi-fw pi-id-card', to: '/memory'},
+                    {label: '磁盘', icon: 'pi pi-fw pi-id-card', to: '/disk'},
 									]
 								},
 								{
 									label: '用户设置', icon: 'pi pi-fw pi-sitemap',
 									items: [
-										{label: '用户中心', icon: 'pi pi-fw pi-id-card', to: '/'},
+										{label: '用户中心', icon: 'pi pi-fw pi-id-card', to: '/user'},
 										{label: '设置', icon: 'pi pi-fw pi-id-card', to: '/setting'},
 									]
 								},
