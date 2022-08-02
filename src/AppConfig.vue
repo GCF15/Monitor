@@ -16,10 +16,10 @@
 			</div>
 			
 			<n-divider title-placement="left">
-				<b>启动状态报警</b>
+				<b>报警设置</b>
 			</n-divider>
 			
-			<n-switch v-model:value="activeAlert" @update:value="handleActiveAlertChange" >
+			<n-switch v-model:value="activeAlert" @update:value="handleActiveAlertChange" size="small" style="margin-left:10px;" >
         <template #checked>
           已启动报警
         </template>
@@ -27,11 +27,12 @@
           已关闭报警
         </template>
       </n-switch>
+      <n-button tertiary round type="success" size="small" style="margin-left:10px;" @click="moreSetting()">更多设置</n-button>
 			
 			
-      <div v-if="activeAlert">
+      <!--<div v-if="activeAlert">
       <n-divider title-placement="left">
-				<b>刷新时间</b>
+				<span>刷新时间</span>
 			</n-divider>
         <n-input v-model:value="refreshTime" round :placeholder=refreshTime >
           <template #suffix>秒</template>
@@ -44,7 +45,7 @@
       
 			<div v-if='activeAlert'>
         <n-divider title-placement="left">
-          <b>报警方式</b>
+          <span>报警方式</span>
         </n-divider>
         <n-checkbox-groud :value="selectAlert">
           <n-space>
@@ -59,18 +60,22 @@
           <n-button tertiary round type="success" @click="applyRefreshTineSet()">应用</n-button>
           <n-button tertiary round type="success" style="margin-left:10px;" @click="moreSetting()">更多设置</n-button>
         </div>	
-      </div>
+      </div>-->
 			
 			
 			<n-divider title-placement="left">
 				<b>菜单类型</b>
 			</n-divider>
-			<div class="p-formgroup-inline">
+			<div class="p-formgroup-inline" style="margin-left:10px;">
 				<div class="field-radiobutton">
-					<RadioButton id="static" name="layoutMode" value="static" v-model="d_layoutMode" @change="changeLayout($event, 'static')" />
-					<label for="static">默认</label>
-					<RadioButton style="margin-left:10px;" id="overlay" name="layoutMode" value="overlay" v-model="d_layoutMode" @change="changeLayout($event, 'overlay')" />
-					<label for="overlay">抽屉</label>
+          <n-radio-group>
+					<n-radio id="static" name="layoutMode" checked value="static" v-model="d_layoutMode" @change="changeLayout($event, 'static')">    
+									默认  
+					</n-radio> 	
+          <n-radio style="margin-left:10px;" id="overlay" name="layoutMode" value="overlay" v-model="d_layoutMode" @change="changeLayout($event, 'overlay')">    
+									抽屉  
+					</n-radio> 
+          </n-radio-group>
 				</div>
 			</div>
 
@@ -146,7 +151,8 @@
 <script>
 import EventBus from './AppEventBus';
 import {ref} from 'vue';
-import { NInput,NButton,useMessage } from 'naive-ui';
+import { useMessage } from 'naive-ui';
+//import { NInput,NButton } from 'naive-ui';
 import SettingService from './service/SettingService.js'
 
 	export default {
@@ -154,7 +160,7 @@ import SettingService from './service/SettingService.js'
       window.$message = useMessage()
     },
 		components:{
-			NInput,NButton
+			//NInput,NButton
 		},
 		props: {
 			layoutMode: {

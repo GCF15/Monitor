@@ -1,18 +1,18 @@
 //默认水波图-绿色-正常
 export const luquiddefault = {
-    width: 70,
+    width: 60,
     pixelRatio: 1,
-    percent: 0.05,
+    percent: 0.25,
     statistic: {
         content: {
             style: {
-                fontSize: 15,
+                fontSize: 14,
             },
         }
     },		
     outline: {
-        border: 1,
-        distance: 1,
+        border: 0.5,
+        distance: 0.3,
         style: {
             stroke: '#22c55e',
         }
@@ -26,19 +26,19 @@ export const luquiddefault = {
 }
 //默认水波图-橙色-警告
 export const luquiddefault_orange = {
-    width: 70,
+    width: 60,
     pixelRatio: 1,
     percent: 0.5,
     statistic: {
         content: {
             style: {
-                fontSize: 15,
+                fontSize: 14,
             },
         }
     },		
     outline: {
-        border: 1,
-        distance: 1,
+        border: 0.5,
+        distance: 0.3,
         style: {
             stroke: '#fbc02d',
         }
@@ -52,19 +52,19 @@ export const luquiddefault_orange = {
 }
 //默认水波图-红色-异常
 export const luquiddefault_red = {
-    width: 70,
+    width: 60,
     pixelRatio: 1,
     percent: 0.5,
     statistic: {
         content: {
             style: {
-                fontSize: 15,
+                fontSize: 14,
             },
         }
     },		
     outline: {
-        border: 1,
-        distance: 1,
+        border: 0.5,
+        distance: 0.3,
         style: {
             stroke: '#ef4444',
         }
@@ -104,6 +104,7 @@ export const radardefault = {
 			alternateColor: ['raba(0,0,0,0.04)', null],
 		},
     },
+    renderer:'svg',
     point: {
         size: 2,
 	},

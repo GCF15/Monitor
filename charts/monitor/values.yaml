@@ -1,0 +1,33 @@
+fullnameOverride: monitor
+replicaCount: 1
+image:
+  repository: 192.168.158.17:5000/monitor_view
+  tag: stable
+  pullPolicy: IfNotPresent
+service:
+  name: monitor
+  type: NodePort
+  loadBalancerIP: 
+  headless: false
+  ports:
+  - port: 80
+    targetPort: http
+    nodePort: 32222
+    isNodePort: true
+    name: http
+deployment:
+  ports:
+  - containerPort: 80
+    name: http
+command: 
+args: 
+livenessProbe:
+  enabled: false
+readinessProbe:
+  enabled: false
+ingress:
+  enabled: false
+volumeBinding:
+  enabled: false
+nodeSelector:
+  kubernetes.io/os: linux

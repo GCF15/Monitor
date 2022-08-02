@@ -6,7 +6,7 @@
 					<div>
 						<span class="block text-500 font-medium mb-3">{{item.title}}</span> 
             <span>
-							<b v-tooltip.bottom="'编辑'" @click="editCheckItem(item)">Edit</b>
+							<a v-tooltip.bottom="'编辑'" @click="editCheckItem(item)">Edit</a>
               <n-popconfirm
                 @positive-click="deleteCheckItem(item)"
                 @negative-click="handleNegativeClick"
@@ -335,7 +335,7 @@ export default {
 			this.updateLiuqiStatus();
 			this.updateLineStatus();
 			this.global_refresh_time=this.$refresh_time   
-			console.log(this.global_refresh_time)
+			//console.log(this.global_refresh_time)
 		}, this.global_refresh_time)
     
 		//图表渲染
@@ -439,7 +439,7 @@ export default {
 						this.luquid_CPU.luquidref.changeData(this.luquid_CPU.percentdata);
 						this.luquid_CPU.luquidref.render();
             
-            this.timelines_warning.value.push({ type: 'warning', title: 'CPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_CPU.percentdata*100)+'%', time: this.formatime() });
+            //this.timelines_warning.value.push({ type: 'warning', title: 'CPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_CPU.percentdata*100)+'%', time: this.formatime() });
 					}	
 				}
 				
@@ -465,12 +465,12 @@ export default {
 						this.luquid_GPU.luquidref.changeData(this.luquid_GPU.percentdata);
 						this.luquid_GPU.luquidref.render();
             
-            this.timelines_warning.value.push({ type: 'warning', title: 'GPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_GPU.percentdata*100)+'%', time: this.formatdate() });
-            if(this.timelines_warning.value.length>10){
-              this.timelines_warning.value = this.timelines_warning.value.reverse();
-							this.timelines_warning.value.pop();
-              this.timelines_warning.value = this.timelines_warning.value.reverse();
-            }
+//            this.timelines_warning.value.push({ type: 'warning', title: 'GPU占用过高', content: 'CPU占用率:'+Math.round(this.luquid_GPU.percentdata*100)+'%', time: this.formatdate() });
+//            if(this.timelines_warning.value.length>10){
+//              this.timelines_warning.value = this.timelines_warning.value.reverse();
+//							this.timelines_warning.value.pop();
+//              this.timelines_warning.value = this.timelines_warning.value.reverse();
+//            }
             //this.timelines_warning.value.reverse();
           }
 				}
@@ -512,15 +512,15 @@ export default {
     
     editCheckItem(item){
 			this.addCheckItemModalShow=true
-      console.log(item)
+      //console.log(item)
       if(item!=null){
         this.newStateItem.id=item.id
         this.newStateItem.title=item.title
         this.newStateItem.healthUrl = item.healthUrl	
       }else{
+        this.newStateItem.id=''
 				this.newStateItem.title=''
         this.newStateItem.healthUrl = ''
-        //console.log(this.cardData.value)
       }
     },
     

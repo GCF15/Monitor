@@ -93,7 +93,7 @@ export default {
 			overlayMenuItems: [
 					{
 						label: 'Admin',
-            to:'/login',
+            to:'/user',
 						icon: 'pi pi-user-edit'
 					},
 					{

@@ -163,13 +163,13 @@ import { h } from 'vue';
 import { NTag } from 'naive-ui';
 export const columns_default=[
 	{
-		title: '监控项',
+		//title: '监控项',
 		key: 'show',
 		width: 80,
 		fix:'left'
 	},
 	{
-		title: '值',
+		//title: '值',
 		key: 'tags',
 		width: 100,
 		render(row) {
