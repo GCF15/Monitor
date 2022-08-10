@@ -14,7 +14,7 @@
 			<i class="pi pi-ellipsis-v"></i>
 		</button>
 		<ul class="layout-topbar-menu lg:flex origin-top">
-			<li v-tooltip.bottom="'北京时间'">
+			<li v-tooltip.bottom="'当地时间'">
 				<button class="p-link layout-topbar-button-time" style="width: 11em;">
 					<p>{{nowtime.value}}</p>
 				</button>

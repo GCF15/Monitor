@@ -25,7 +25,7 @@
 		</div>
     <div class="col-12 lg:col-6 xl:col-3">
 			<div class="card mb-0" style="height: 90px;text-align:center;" >
-				<Button v-tooltip.bottom="'添加'" icon="pi pi-plus" class="p-button-rounded p-button-text" @click="editCheckItem(null)"/>	
+				<Button v-tooltip.bottom="'添加'" icon="pi pi-plus" class="p-button-rounded p-button-text" @click="addCheckItemModalShow=true"/>	
         <n-modal :show="addCheckItemModalShow">
           <n-card 
           style="width:600px" 
@@ -39,8 +39,26 @@
             <n-input placeholder="输入链接！" v-model:value="newStateItem.healthUrl"></n-input>
             <p></p>
 						<n-space>
-							<n-button round @click="addCheckItem()">确定</n-button>
+							<n-button round @click="addSaveItem()">确定</n-button>
 							<n-button round @click="addCheckItemModalShow=false">取消</n-button>
+						</n-space>
+          </n-card>
+        </n-modal>
+        <n-modal :show="editCheckItemModalShow">
+          <n-card 
+          style="width:600px" 
+          :bordered="false" 
+          size="huge" 
+          role="dialog" 
+          aria-modal="true"
+          >
+            <n-input placeholder="编辑名称！" v-model:value="editStateItem.title"></n-input>
+            <p></p>
+            <n-input placeholder="编辑链接！" v-model:value="editStateItem.healthUrl"></n-input>
+            <p></p>
+						<n-space>
+							<n-button round @click="editSaveItem()">确定</n-button>
+							<n-button round @click="editCheckItemModalShow=false">取消</n-button>
 						</n-space>
           </n-card>
         </n-modal>
@@ -291,13 +309,22 @@ export default {
 
 			global_refresh_time,
       addCheckItemModalShow:ref(false),
+      editCheckItemModalShow:ref(false),
       
-      newStateItem:{
+      newStateItem:
+      {
           id:"123",
           state: false,
           title: '',
           healthUrl: ''	
       },
+      newItem:{
+				id:"",
+        state: false,
+        title: '',
+        healthUrl: ''	
+      },
+      
       editStateItem:{
           id:"0",
           state: false,
@@ -511,45 +538,42 @@ export default {
     },
     
     editCheckItem(item){
-			this.addCheckItemModalShow=true
-      //console.log(item)
-      if(item!=null){
-        this.newStateItem.id=item.id
-        this.newStateItem.title=item.title
-        this.newStateItem.healthUrl = item.healthUrl	
-      }else{
-        this.newStateItem.id=''
-				this.newStateItem.title=''
-        this.newStateItem.healthUrl = ''
-      }
+			this.editCheckItemModalShow=true
+        this.editStateItem.id=item.id
+        this.editStateItem.title=item.title
+        this.editStateItem.healthUrl = item.healthUrl	
+    },
+    editSaveItem(){
+      //TODO
+      //将编辑保存到数据库
+      this.cardData.value.forEach((item,index,arr)=>{
+				if(item.id==this.editStateItem.id){
+					arr[index].title=this.editStateItem.title
+          arr[index].healthUrl=this.editStateItem.healthUrl
+        }
+      })
+			this.editCheckItemModalShow=false
     },
     
     deleteCheckItem(item){
-      
-      
       let index = this.cardData.value.indexOf(item);
       if(index!=-1){
         this.cardData.value.splice(index,1);	
       }
-      
     },
     
-    addCheckItem(){
-      var isNew=true
-
-      this.cardData.value.forEach((item,index,arr)=>{
-				if(item.id==this.newStateItem.id){
-					arr[index].title=this.newStateItem.title
-          arr[index].healthUrl=this.newStateItem.healthUrl
-          isNew=false
-        }
-      })
-      
-      if(isNew){
-        this.cardData.value.push(this.newStateItem)	
-      }
-      
+    addSaveItem(){
+      this.newItem.id=this.formatime()
+      this.newItem.title=this.newStateItem.title
+      this.newItem.state=this.newStateItem.state
+      this.newItem.healthUrl=this.newStateItem.healthUrl
+      this.cardData.value.push(this.newItem)	
+      console.log(this.cardData.value)
 			this.addCheckItemModalShow=false
+      
+      this.newStateItem.title=''
+      this.newStateItem.state=''
+      this.newStateItem.healthUrl=''
     },
     
     formatime() {

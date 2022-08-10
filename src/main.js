@@ -39,7 +39,7 @@ router.beforeEach(function(to, from, next) {
 const app = createApp(AppWrapper);
 
 //全局配置
-app.config.globalProperties.$refresh_time = reactive(5000)				//刷新时间
+app.config.globalProperties.$refresh_time = reactive(10000)				//刷新时间
 app.config.globalProperties.$global_api = "http://192.168.158.17:30346/api/Alarm"
 app.config.globalProperties.$appState = reactive({ theme: 'lara-light-indigo', darkTheme: false });
 
