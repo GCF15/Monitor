@@ -125,37 +125,27 @@ export const tabledata_default=[
 	{
 		key: 1,
 		show: '类型',
-		tags: ['Master']
+		tags: []
 	},
 	{
 		key: 2,
 		show: '状态',
-		tags: ['Ready(Ready)']
+		tags: []
 	},
 	{
 		key: 3,
 		show: 'IP地址',
-		tags: ['172.25.13.5']
+		tags: []
 	},
 	{
 		key: 4,
 		show: '容器运行时版本',
-		tags: ['docker://20.10.12']
+		tags: []
 	},
 	{
 		key: 5,
 		show: 'Kubernet版本',
-		tags: ['v1.20.14']
-	},
-	{
-		key: 6,
-		show: 'Os Image',
-		tags: ['Ubuntu 20.04.3 LTS']
-	},
-	{
-		key: 7,
-		show: '创建时间戳',
-		tags: ['3/14/2022 3:59:09 AM']
+		tags: []
 	}
 ];
 
