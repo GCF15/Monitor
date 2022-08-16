@@ -114,7 +114,7 @@
 	</div>
 	<p></p>
 	<div class="grid p-fluid">
-			<div class="col-8 lg:col-4">
+			<div class="col-12 lg:col-4">
 					
         <Panel :toggleable="true" v-model:collapsed="isCollapsed">
           <template #header>
@@ -194,7 +194,8 @@
           
         <p></p>
           
-				<Panel header="时间线-事件记录" :toggleable="true" :collapsed="false">
+        <!--TODO-->
+				<!--<Panel header="时间线-事件记录" :toggleable="true" :collapsed="false">
 					<n-grid :x-gap="18" :y-gap="16" :item-responsive="true" cols='2'>
 						<n-grid-item>
 							<p>警告</p>
@@ -213,10 +214,11 @@
 							</n-timeline>
 						</n-grid-item>
 					</n-grid>
-				</Panel>
+				</Panel>-->
 			</div>
-			<div class="col-16 lg:col-8">
-        <Panel header="资源用量" :toggleable="true" :collapsed="false">
+			<div class="col-12 lg:col-8">
+        <!--TODO-->
+        <!--<Panel header="资源用量" :toggleable="true" :collapsed="false">
 				<div class="flex flex-column align-items-center">
 					<div style="width:100%;height: 100%;">
 						<div class="leftbox" id="containerRadar">
@@ -346,7 +348,7 @@
         
         <Panel header="网络状态" :toggleable="true" :collapsed="false">
 					<div id="containerline"></div>
-        </Panel>
+        </Panel>-->
 			</div>	
 		</div>
 		
@@ -357,7 +359,8 @@ import EventBus from '@/AppEventBus';
 import ProductService from '../service/ProductService';
 import { reactive, ref } from 'vue'
 import { Liquid, Radar, Line} from '@antv/g2plot';
-import { NGrid, NGridItem, NTimeline, NTimelineItem } from 'naive-ui';
+import { NGrid, NGridItem } from 'naive-ui';
+//import { NTimeline, NTimelineItem } from 'naive-ui';
 //import NDataTable from 'naive-ui';
 import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './js/Graph'
 import { linedata_default, carddata_default, radardata_default, tabledata_default, columns_default, timeline_warn_default, timeline_error_default } from './js/Data'
@@ -372,8 +375,9 @@ export default {
 		//NDataTable,
 		NGrid,
 		NGridItem,
-		NTimeline,
-		NTimelineItem
+//    TODO
+//		NTimeline,
+//		NTimelineItem
 	},
 	
 	data() {
@@ -502,14 +506,15 @@ export default {
 		this.global_refresh_time=this.$refresh_time
 		this.timer = setInterval(()=>{
 			this.updateApisStatus();
-			this.updateLiuqiStatus();
-			this.updateLineStatus();
+      //TODO
+			//this.updateLiuqiStatus();
+			//this.updateLineStatus();
       this.getNodeDetail()
 			this.global_refresh_time=this.$refresh_time  
 		}, this.global_refresh_time)
     
 		//图表渲染
-		this.initShow();
+		//this.initShow();
     this.getNodeDetail()
 	},
 	beforeUnmount() {
