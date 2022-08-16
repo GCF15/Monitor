@@ -88,25 +88,25 @@
 
 export const carddata_default=[
 	{
-		id:"apips",
+		//id:"apips",
 		state: true,
 		title: 'APIPS',
     healthUrl: 'https://apips.appeon.com/health'
 	},
 	{
-		id:"apipsinfo",
+		//id:"apipsinfo",
     state: true,
 		title: 'APIPSINFO',
     healthUrl: 'https://apipsinfo.appeon.com/health'
 	},
 	{
-		id:"apipsoa",   		
-    state: true,
+		//id:"apipsoa",   		
+    state: false,
 		title: 'APIPSOA',
     healthUrl: 'https://apipsoa.appeon.com/health'
 	},
 	{
-		id:"apips2",   		
+		//id:"apips2",   		
     state: true,
 		title: 'License备份服务器',
     healthUrl: 'https://apips2.appeon.com/health'

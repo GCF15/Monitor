@@ -1,27 +1,27 @@
 <template>
 	<div class="grid">
-		<div v-for="item in cardData.value" :key="item.id" class="col-12 lg:col-6 xl:col-3">
+		<div v-for="item in cardData" :key="item" class="col-12 lg:col-6 xl:col-3">
 			<div class="card mb-0" style="height: 90px;">
 				<div  class="flex justify-content-between mb-3">
 					<div style="margin-top:0px;">
-						<span class="block text-500 font-medium mb-3">{{item.title}}</span> 
+						<span class="block text-500 font-medium mb-3">{{item.value.name}}</span> 
             <span style="margin-left:0px;">
 							<a v-tooltip.bottom="'编辑'" @click="editCheckItem(item)">Edit</a>
               <!--<Button size="small" v-tooltip.bottom="'编辑'" icon="pi pi-pencil" class="p-button-rounded p-button-text" @click="editCheckItem(item)"/>	-->
               <n-popconfirm
-                @positive-click="deleteCheckItem(item)"
+                @positive-click="deleteCheckItem(item.value.id)"
                 @negative-click="handleNegativeClick"
               >
                 <template #trigger>
                   <a v-tooltip.bottom="'删除'" style="margin-left:10px;">delete</a>
                   <!--<button v-tooltip.bottom="'删除'" icon="pi pi-times" class="p-button-rounded  p-button-text"/>	-->
                 </template>
-                确定要移除 “{{item.title}}” 吗？
+                确定要移除 “{{item.value.title}}” 吗？
               </n-popconfirm>
               </span>
 					</div>
-					<Button v-if="item.state" v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)"/>
-          <Button v-else v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" @click="linkToHealthUrl(item.healthUrl)" />
+					<Button v-if="item.state" v-tooltip.bottom="'健康'" icon="pi pi-check" class="p-button-rounded p-button-success mr-2 mb-2" @click="linkToHealthUrl(item.value.url)"/>
+          <Button v-else v-tooltip.bottom="'异常'" icon="pi pi-times" class="p-button-rounded p-button-danger mr-2 mb-2" @click="linkToHealthUrl(item.value.url)" />
         </div>
 			</div>
 		</div>
@@ -49,15 +49,15 @@
 								:style="{       maxWidth: '640px'     }"    
 							> 
 						<n-form-item label="显示名称" style="margin-top:20px;">
-							<n-input width="50px" size="small" placeholder="输入名称！" v-model:value="newStateItem.title"></n-input>
+							<n-input width="50px" size="small" placeholder="输入名称！" v-model:value="newStateItem.name"></n-input>
 						</n-form-item>  
             
             <n-form-item label="服务链接" style="margin-top:-20px;" >
-							<n-input size="small" placeholder="输入链接！" v-model:value="newStateItem.healthUrl"></n-input>
+							<n-input size="small" placeholder="输入链接！" v-model:value="newStateItem.url"></n-input>
 						</n-form-item>  
             
             <n-form-item label="响应方式" style="margin-top:-20px;" >
-							<n-select v-model:value="value" size="small" :options="options" />
+							<n-input v-model:value="newStateItem.responseResult" type="textarea"/>
 						</n-form-item> 
 					</n-form>
             <!--<n-input placeholder="输入名称！" v-model:value="newStateItem.title"></n-input>
@@ -90,15 +90,16 @@
 								:style="{       maxWidth: '640px'     }"    
 							> 
 						<n-form-item label="显示名称" style="margin-top:20px;">
-							<n-input placeholder="编辑名称！" size="small" v-model:value="editStateItem.title"></n-input>
+							<n-input placeholder="编辑名称！" size="small" v-model:value="editStateItem.name"></n-input>
 						</n-form-item>  
             
             <n-form-item label="服务链接" style="margin-top:-20px;">
-							<n-input placeholder="编辑链接！" size="small" v-model:value="editStateItem.healthUrl"></n-input>
+							<n-input placeholder="编辑链接！" size="small" v-model:value="editStateItem.url"></n-input>
 						</n-form-item> 
             
             <n-form-item label="响应方式" style="margin-top:-20px;" >
-							<n-select v-model:value="value" size="small" :options="options" />
+							<!-- <n-select v-model:value="value" size="small" :options="options" /> -->
+							<n-input v-model:value="editStateItem.responseResult" type="textarea" placeholder=""/>
 						</n-form-item>
 					</n-form>
           
@@ -363,7 +364,7 @@ import { NGrid, NGridItem } from 'naive-ui';
 //import { NTimeline, NTimelineItem } from 'naive-ui';
 //import NDataTable from 'naive-ui';
 import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './js/Graph'
-import { linedata_default, carddata_default, radardata_default, tabledata_default, columns_default, timeline_warn_default, timeline_error_default } from './js/Data'
+import { linedata_default, radardata_default, tabledata_default, columns_default, timeline_warn_default, timeline_error_default } from './js/Data'
 import ApipsService from '../service/ApipsService';
 import * as math from  'mathjs';//解决计算精度问题
 import NodeDetailService from '../service/NodeDetailService'
@@ -390,7 +391,7 @@ export default {
 		
 		const linedata = linedata_default;
 		let lineshow;
-		let cardData = reactive({ value:carddata_default });
+		//let cardData = reactive({ value:carddata_default });
 		let radarPlot;
 		let radarData = reactive({ value:radardata_default })
 		const columns = columns_default;
@@ -405,7 +406,8 @@ export default {
 			products: null,
 			
 			nowTime:"",
-			cardData,
+			cardData:[],
+			checkItem:[],
 			columns,
 			tableData,
 			linedata,
@@ -442,29 +444,23 @@ export default {
         selectContiner:''
       },
       
-      
+      //
       addCheckItemModalShow:ref(false),
       editCheckItemModalShow:ref(false),
       
       newStateItem:
       {
-          id:"123",
-          state: false,
-          title: '',
-          healthUrl: ''	
-      },
-      newItem:{
-				id:"",
-        state: false,
-        title: '',
-        healthUrl: ''	
+		name: '',
+		url: '',
+		responseStatus: 200,
+		responseResult: ''
       },
       
       editStateItem:{
-          id:"0",
-          state: false,
-          title: '',
-          healthUrl: ''	
+        name: '',
+        url: '',
+		responseStatus: 200,
+        responseResult: ''	
       },
       
       options: [
@@ -477,7 +473,9 @@ export default {
           label: 'Code 200 OK',
           value: '200'
         },
-      ]
+      ],
+      
+      apipsservice:new ApipsService()
 		}
 	},
 	
@@ -505,6 +503,7 @@ export default {
     //循环执行定时器
 		this.global_refresh_time=this.$refresh_time
 		this.timer = setInterval(()=>{
+		//this.getallCheckItem()
 			this.updateApisStatus();
       //TODO
 			//this.updateLiuqiStatus();
@@ -516,6 +515,9 @@ export default {
 		//图表渲染
 		//this.initShow();
     this.getNodeDetail()
+    
+    this.getallCheckItem()
+    //this.updateApisStatus();
 	},
 	beforeUnmount() {
       EventBus.off('change-theme', this.themeChangeListener );
@@ -656,21 +658,53 @@ export default {
 				this.radarPlot.changeData(this.radarData.value)
 				this.radarPlot.render();
 		},
+    
+    async getallCheckItem(){
+		var cardDate_copy=[]
+		await this.apipsservice.getCheckItem().then(res=>{
+			this.checkItem=res.data
+			res.data.forEach(element => {
+				var item={
+					state:false,
+					value:element
+				}
+				cardDate_copy.push(item)
+			});
+		})
+
+		this.cardData=cardDate_copy
+		this.updateApisStatus();
+    },
+    
 		async updateApisStatus(){
-			const apipsservice=new ApipsService()
-			
-      var i=0
-      
-			for(i; i<this.cardData.value.length;i++)
+			for(var i=0; i<this.cardData.length;i++)
 			{
 				try{
-					//var strApiName=this.cardData.value[i].id+"服务异常";
-          await apipsservice.getapistate(this.cardData.value[i].healthUrl).then(res=>{this.checkApiStatus(res,i)})
+					await this.apipsservice.getapistate(this.cardData[i].value.url).then(res=>{
+						if(res.data.healthStatus==='Healthy'){
+							this.cardData[i].state=true
+						}
+					})
 				}catch(err){
-          this.cardData.value[i].state = false;
-					console.log(err.message)
+					this.cardData[i].state = false;
 				}
 			}
+		},
+
+		async checkItemStatus(itemurl){
+			//console.log(itemurl)
+			var ret=false
+			try{
+				await this.apipsservice.getapistate(itemurl).then(res=>{
+					if(res.data.healthStatus==='Healthy'){
+						ret=true
+					}
+				})
+			}catch(err){
+				ret=false
+			}
+
+			return ret
 		},
     
     async getNodeDetail(){
@@ -684,12 +718,21 @@ export default {
     },
     
     async getNodeContainerDetialByName(value){
-			const nodeService= new NodeDetailService()
-      
-      await nodeService.getNodeContainerDetialByName(value).then(res=>{
+		const nodeService= new NodeDetailService()
+
+		//Node信息
+		this.nodeNeedMsg.name=this.nodedetialMsg.items[0].metadata.name
+		//this.nodeNeedAddress.status=this.nodedetialMsg.items[0].status.conditions[4].status==='True'?true:false
+		this.nodeNeedMsg.type='Worker'
+		this.nodeNeedMsg.state=this.nodedetialMsg.items[0].status.conditions[4].type
+		this.nodeNeedMsg.ipAddress=this.nodedetialMsg.items[0].status.addresses[0].address
+		this.nodeNeedMsg.containerRTVersion=this.nodedetialMsg.items[0].status.nodeInfo.containerRuntimeVersion
+		this.nodeNeedMsg.isLinux=this.nodedetialMsg.items[0].status.nodeInfo.operatingSystem==='linux'?true:false
+		this.nodeNeedMsg.kubernetVersion=this.nodedetialMsg.items[0].status.nodeInfo.kubeletVersion
+		await nodeService.getNodeContainerDetialByName(value).then(res=>{
 				this.nodeNeedMsg.nodeDetial=res.data
-        //console.log(res.data)
-      })
+		//console.log(res.data)
+		})
     },
     
     async filterContainerDetialByType(value){
@@ -731,36 +774,7 @@ export default {
     },
     
     initNodeDetaiTableData(){
-//      //Name
-//      this.nodeNeedMsg.name=this.nodedetialMsg.items[0].metadata.name
-//      //容器运行时版本
-//      this.tableData[3].tags=[]
-//      this.tableData[3].tags.push(this.nodedetialMsg.items[0].status.nodeInfo.containerRuntimeVersion)
-//      //kubelet版本
-//      this.tableData[4].tags=[]
-//      this.tableData[4].tags.push(this.nodedetialMsg.items[0].status.nodeInfo.kubeletVersion)
-//      //IP地址
-//      this.tableData[2].tags=[]
-//      this.tableData[2].tags.push(this.nodedetialMsg.items[0].status.addresses[0].address)
-//      //linux图案
-//      this.nodeNeedMsg.isLinux=this.nodedetialMsg.items[0].status.nodeInfo.operatingSystem==='linux'?true:false
-//      //状态
-//      this.tableData[1].tags=[]
-//      this.tableData[1].tags.push(this.nodedetialMsg.items[0].status.conditions[4].type)
-//      //类型
-//      this.tableData[0].tags=[]
-//      this.tableData[0].tags.push('Worker')
 
-        //Node信息
-        this.nodeNeedMsg.name=this.nodedetialMsg.items[0].metadata.name
-        //this.nodeNeedAddress.status=this.nodedetialMsg.items[0].status.conditions[4].status==='True'?true:false
-        this.nodeNeedMsg.type='Worker'
-        this.nodeNeedMsg.state=this.nodedetialMsg.items[0].status.conditions[4].type
-        this.nodeNeedMsg.ipAddress=this.nodedetialMsg.items[0].status.addresses[0].address
-        this.nodeNeedMsg.containerRTVersion=this.nodedetialMsg.items[0].status.nodeInfo.containerRuntimeVersion
-        this.nodeNeedMsg.isLinux=this.nodedetialMsg.items[0].status.nodeInfo.operatingSystem==='linux'?true:false
-        this.nodeNeedMsg.kubernetVersion=this.nodedetialMsg.items[0].status.nodeInfo.kubeletVersion
-        
         if(this.nodeNeedMsg.selectContiner===''){
           this.getNodeContainerDetialByName(this.nodeNeedMsg.name)	
         }else{
@@ -770,56 +784,43 @@ export default {
         this.getNodeContainerType()
     },
     
-    checkApiStatus(res, i){
-					if(res.data.healthStatus==='Healthy'){
-						this.cardData.value[i].state = true;
-					}else{
-						this.cardData.value[i].state = false;
-          }
-        //添加错误事件显示
-        var strApiName=this.cardData.value[i].id+"服务异常";
-        if(!this.cardData.value[i].state){
-          this.timelines_error.value.push({ type: 'error', title: strApiName, content: '', time: this.formatime() });
-        } 
-    },
-    
     editCheckItem(item){
-			this.editCheckItemModalShow=true
-        this.editStateItem.id=item.id
-        this.editStateItem.title=item.title
-        this.editStateItem.healthUrl = item.healthUrl	
+		this.editCheckItemModalShow=true
+        this.editStateItem.name=item.value.name
+        this.editStateItem.url = item.value.url	
+		this.editStateItem.responseResult=item.value.responseResult
+
     },
     editSaveItem(){
-      //TODO
-      //将编辑保存到数据库
-      this.cardData.value.forEach((item,index,arr)=>{
-				if(item.id==this.editStateItem.id){
-					arr[index].title=this.editStateItem.title
-          arr[index].healthUrl=this.editStateItem.healthUrl
-        }
-      })
-			this.editCheckItemModalShow=false
+		//TODO
+		//将编辑保存到数据库
+		this.apipsservice.addCheckItem(this.newStateItem).then(res=>{
+			console.log(res)
+			this.getallCheckItem()
+		})
+		this.editCheckItemModalShow=false
     },
     
-    deleteCheckItem(item){
-      let index = this.cardData.value.indexOf(item);
-      if(index!=-1){
-        this.cardData.value.splice(index,1);	
-      }
+    deleteCheckItem(id){
+		this.apipsservice.deleteCheckItemById(id).then(res=>{
+			console.log(res.data)
+			this.getallCheckItem()
+		})
+		//this.getallCheckItem()
     },
     
     addSaveItem(){
-      this.newItem.id=this.formatime()
-      this.newItem.title=this.newStateItem.title
-      this.newItem.state=this.newStateItem.state
-      this.newItem.healthUrl=this.newStateItem.healthUrl
-      this.cardData.value.push(this.newItem)	
-      console.log(this.cardData.value)
-			this.addCheckItemModalShow=false
+		this.addCheckItemModalShow=false
+		this.apipsservice.addCheckItem(this.newStateItem).then(res=>{
+			console.log(res)
+			this.getallCheckItem()
+		})
       
-      this.newStateItem.title=''
-      this.newStateItem.state=''
+      this.newStateItem.name=''
+      this.newStateItem.url=''
       this.newStateItem.healthUrl=''
+      
+		this.getallCheckItem()
     },
     
     formatime() {
