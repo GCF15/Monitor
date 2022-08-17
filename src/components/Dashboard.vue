@@ -457,23 +457,12 @@ export default {
       },
       
       editStateItem:{
+		id:0,
         name: '',
         url: '',
 		responseStatus: 200,
         responseResult: ''	
       },
-      
-      options: [
-        {
-          label: "health",
-          value: '  health',
-          //disabled: true
-        },
-        {
-          label: 'Code 200 OK',
-          value: '200'
-        },
-      ],
       
       apipsservice:new ApipsService()
 		}
@@ -786,6 +775,7 @@ export default {
     
     editCheckItem(item){
 		this.editCheckItemModalShow=true
+		this.editStateItem.id=item.value.id
         this.editStateItem.name=item.value.name
         this.editStateItem.url = item.value.url	
 		this.editStateItem.responseResult=item.value.responseResult
@@ -794,8 +784,9 @@ export default {
     editSaveItem(){
 		//TODO
 		//将编辑保存到数据库
-		this.apipsservice.addCheckItem(this.newStateItem).then(res=>{
-			console.log(res)
+		console.log(this.editStateItem)
+		this.apipsservice.updateCheckItem(this.editStateItem).then(res=>{
+			if(res.status===200)
 			this.getallCheckItem()
 		})
 		this.editCheckItemModalShow=false
@@ -803,8 +794,11 @@ export default {
     
     deleteCheckItem(id){
 		this.apipsservice.deleteCheckItemById(id).then(res=>{
-			console.log(res.data)
-			this.getallCheckItem()
+			if(res.status===200){
+				this.$message.info()
+				this.getallCheckItem()
+			}
+			
 		})
 		//this.getallCheckItem()
     },

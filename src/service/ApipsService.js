@@ -29,7 +29,7 @@ export default class ApipsService {
     
   updateCheckItem(body) {
     var healthCheckItemUrl = "http://192.168.158.17:30872/api/health/update"
-    return (axios.put(healthCheckItemUrl, body));
+    return (axios.post(healthCheckItemUrl, body));
   }
       
 }
