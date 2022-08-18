@@ -10,11 +10,10 @@ service:
   loadBalancerIP: 
   headless: false
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: http
     nodePort: 32222
-    isNodePort: true
-    name: http
 deployment:
   ports:
   - containerPort: 80

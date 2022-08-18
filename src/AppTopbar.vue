@@ -32,12 +32,12 @@
 						<span>全屏/退出全屏</span>
 				</button>
 			</li>
-			<li v-tooltip.bottom="'事件'">
+			<!-- <li v-tooltip.bottom="'事件'">
 				<button class="p-link layout-topbar-button" @click="gotoLog()">
 					<i class="pi pi-calendar" v-badge.danger="'10'"></i>
 					<span>事件</span>
 				</button>
-			</li>
+			</li> -->
       <li v-tooltip.bottom="'主页'">
 				<button class="p-link layout-topbar-button" @click="gotoHome()">
 					<i class="pi pi-home" v-badge.danger="'10'"></i>

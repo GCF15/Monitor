@@ -13,7 +13,7 @@
                 @negative-click="handleNegativeClick"
               >
                 <template #trigger>
-                  <a v-tooltip.bottom="'删除'" style="margin-left:10px;">delete</a>
+                  <a v-tooltip.bottom="'删除'" style="margin-left:10px;">Delete</a>
                   <!--<button v-tooltip.bottom="'删除'" icon="pi pi-times" class="p-button-rounded  p-button-text"/>	-->
                 </template>
                 确定要移除 “{{item.value.title}}” 吗？
@@ -46,24 +46,32 @@
 								label-width="auto" 
 								require-mark-placement="right-hanging"
 								:size="size"  
-								:style="{       maxWidth: '640px'     }"    
+								:style="{       maxWidth: '640px'     }"
 							> 
 						<n-form-item label="显示名称" style="margin-top:20px;">
 							<n-input width="50px" size="small" placeholder="输入名称！" v-model:value="newStateItem.name"></n-input>
-						</n-form-item>  
+						</n-form-item>
             
             <n-form-item label="服务链接" style="margin-top:-20px;" >
 							<n-input size="small" placeholder="输入链接！" v-model:value="newStateItem.url"></n-input>
 						</n-form-item>  
             
-            <n-form-item label="响应方式" style="margin-top:-20px;" >
-							<n-input v-model:value="newStateItem.responseResult" type="textarea"/>
+            
+            
+            <n-form-item label="正常响应" style="margin-top:-20px;" >
+              <n-radio-group  name="radiogroup2" v-model:value="newStateItem.isUseStatusCode">    
+								<n-radio value="1">    
+								状态码200 OK  
+								</n-radio>     
+								<n-radio value="0">      
+								返回值      
+								</n-radio>   
+							</n-radio-group>  
+						</n-form-item> 
+            <n-form-item label="" style="margin-top:-20px;margin-left:78px;" v-if="newStateItem.isUseStatusCode==='0'" >
+							<n-input v-model:value="newStateItem.responseContent" placeholder="期望返回值" type="textarea"/>
 						</n-form-item> 
 					</n-form>
-            <!--<n-input placeholder="输入名称！" v-model:value="newStateItem.title"></n-input>
-            <p></p>
-            <n-input placeholder="输入链接！" v-model:value="newStateItem.healthUrl"></n-input>
-            <p></p>-->
 						<n-space>
 							<n-button round @click="addSaveItem()">确定</n-button>
 							<n-button round @click="addCheckItemModalShow=false">取消</n-button>
@@ -97,9 +105,18 @@
 							<n-input placeholder="编辑链接！" size="small" v-model:value="editStateItem.url"></n-input>
 						</n-form-item> 
             
-            <n-form-item label="响应方式" style="margin-top:-20px;" >
-							<!-- <n-select v-model:value="value" size="small" :options="options" /> -->
-							<n-input v-model:value="editStateItem.responseResult" type="textarea" placeholder=""/>
+            <n-form-item label="正常响应" style="margin-top:-20px;" >
+              <n-radio-group  name="radiogroup2" v-model:value="editStateItem.isUseStatusCode">    
+								<n-radio value='1'>    
+								状态码200 OK  
+								</n-radio>     
+								<n-radio value='0'>      
+								返回值      
+								</n-radio>   
+							</n-radio-group>  
+						</n-form-item> 
+            <n-form-item style="margin-top:-20px;margin-left:78px;" v-if="editStateItem.isUseStatusCode==='0'" >
+							<n-input v-model:value="editStateItem.responseContent" type="textarea" placeholder=""/>
 						</n-form-item>
 					</n-form>
           
@@ -153,7 +170,7 @@
               </n-descriptions>
 						</n-grid-item>
 						<n-grid-item>
-              <n-collapse>
+              <!-- <n-collapse>
                 <n-collapse-item title="容器组" name="1">
                   
                   <n-grid cols="4" item-responsive responsive="screen">
@@ -171,7 +188,6 @@
                     </n-grid-item>
                   </n-grid>
                   <div v-for="item in nodeNeedMsg.nodeDetial" :key="item" >
-										<!--<p>{{item}}</p>-->
                     <n-grid cols="4" item-responsive responsive="screen">
                       <n-grid-item span="0 m:1 l:3">
                         <div class="light-green">
@@ -188,7 +204,7 @@
                   </div>
                   
                 </n-collapse-item>
-              </n-collapse>
+              </n-collapse> -->
 						</n-grid-item>
 					</n-grid>  
         </Panel>
@@ -360,7 +376,7 @@ import EventBus from '@/AppEventBus';
 import ProductService from '../service/ProductService';
 import { reactive, ref } from 'vue'
 import { Liquid, Radar, Line} from '@antv/g2plot';
-import { NGrid, NGridItem } from 'naive-ui';
+import { NGrid, NGridItem,useMessage } from 'naive-ui';
 //import { NTimeline, NTimelineItem } from 'naive-ui';
 //import NDataTable from 'naive-ui';
 import { luquiddefault, luquiddefault_orange, luquiddefault_red, radardefault, linedefault } from './js/Graph'
@@ -380,6 +396,9 @@ export default {
 //		NTimeline,
 //		NTimelineItem
 	},
+  setup() {
+    window.$message = useMessage()
+  },
 	
 	data() {
     //图形数据初始化定义
@@ -448,20 +467,23 @@ export default {
       addCheckItemModalShow:ref(false),
       editCheckItemModalShow:ref(false),
       
+      isStatusCode:'true',
       newStateItem:
       {
-		name: '',
-		url: '',
-		responseStatus: 200,
-		responseResult: ''
+        name: '',
+        url: '',
+        isUseStatusCode:'0',
+        responseStatusCode: 200,
+        responseContent: ''
       },
       
       editStateItem:{
-		id:0,
+        id:0,
         name: '',
         url: '',
-		responseStatus: 200,
-        responseResult: ''	
+        isUseStatusCode:'0',
+        responseStatusCode: 200,
+        responseContent: ''	
       },
       
       apipsservice:new ApipsService()
@@ -670,7 +692,12 @@ export default {
 			{
 				try{
 					await this.apipsservice.getapistate(this.cardData[i].value.url).then(res=>{
-						if(res.data.healthStatus==='Healthy'){
+            if(this.cardData[i].value.isUseStatusCode==='1'){
+							if(res.data.responseStatusCode===200){
+								this.cardData[i].state=true
+              }
+            }
+						else if(res.data.responseContent===this.cardData[i].value.responseContent){
 							this.cardData[i].state=true
 						}
 					})
@@ -678,22 +705,6 @@ export default {
 					this.cardData[i].state = false;
 				}
 			}
-		},
-
-		async checkItemStatus(itemurl){
-			//console.log(itemurl)
-			var ret=false
-			try{
-				await this.apipsservice.getapistate(itemurl).then(res=>{
-					if(res.data.healthStatus==='Healthy'){
-						ret=true
-					}
-				})
-			}catch(err){
-				ret=false
-			}
-
-			return ret
 		},
     
     async getNodeDetail(){
@@ -734,7 +745,7 @@ export default {
           //console.log(item)
           this.nodeNeedMsg.nodeDetial.push(item)
         }
-        console.log(this.nodeNeedMsg.nodeDetial)
+        //console.log(this.nodeNeedMsg.nodeDetial)
       })
     },
     
@@ -778,7 +789,8 @@ export default {
 		this.editStateItem.id=item.value.id
         this.editStateItem.name=item.value.name
         this.editStateItem.url = item.value.url	
-		this.editStateItem.responseResult=item.value.responseResult
+        this.editStateItem.isUseStatusCode = item.value.isUseStatusCode	
+		this.editStateItem.responseContent=item.value.responseContent
 
     },
     editSaveItem(){
@@ -786,8 +798,13 @@ export default {
 		//将编辑保存到数据库
 		console.log(this.editStateItem)
 		this.apipsservice.updateCheckItem(this.editStateItem).then(res=>{
-			if(res.status===200)
-			this.getallCheckItem()
+			if(res.status===200){
+        this.getallCheckItem()
+        window.$message.success("保存成功："+this.editStateItem.name)	
+      }else{
+				window.$message.error("保存失败！")
+      }
+			
 		})
 		this.editCheckItemModalShow=false
     },
@@ -795,9 +812,12 @@ export default {
     deleteCheckItem(id){
 		this.apipsservice.deleteCheckItemById(id).then(res=>{
 			if(res.status===200){
-				this.$message.info()
 				this.getallCheckItem()
+        window.$message.success("已删除！")
 			}
+      else{
+				window.$message.error("删除失败！")
+      }
 			
 		})
 		//this.getallCheckItem()
@@ -806,15 +826,30 @@ export default {
     addSaveItem(){
 		this.addCheckItemModalShow=false
 		this.apipsservice.addCheckItem(this.newStateItem).then(res=>{
-			console.log(res)
-			this.getallCheckItem()
+      if(res.status===200){
+        this.getallCheckItem()
+        window.$message.success("添加成功!")	
+      }else{
+				window.$message.error("添加失败！")	
+      }
+			
 		})
       
       this.newStateItem.name=''
       this.newStateItem.url=''
-      this.newStateItem.healthUrl=''
+      this.newStateItem.isUseStatusCode='0'
+      this.newStateItem.responseContent=''
       
 		this.getallCheckItem()
+    },
+    
+    selectValue(value){
+			window.$message.success(value)
+      console.log(value)
+    },
+    
+    selctRadioChange(value){
+			window.$message.success(value)
     },
     
     formatime() {
@@ -880,36 +915,6 @@ export default {
 			};
 		},
 		applyDarkTheme() {
-//			this.lineOptions = {
-//				plugins: {
-//					legend: {
-//						labels: {
-//							color: '#ebedef'
-//						}
-//					}
-//				},
-//				scales: {
-//					x: {
-//						ticks: {
-//							color: '#ebedef'
-//						},
-//						grid: {
-//							color:  'rgba(160, 167, 181, .3)',
-//						}
-//					},
-//					y: {
-//						ticks: {
-//							color: '#ebedef'
-//						},
-//						grid: {
-//							color:  'rgba(160, 167, 181, .3)',
-//						}
-//					},
-//				}
-//			};
-//			this.NDataTable.lineOptions={
-				
-//			}
 		},
     
     handleliquidClick(a){
@@ -1016,6 +1021,10 @@ export default {
 .green {
   height: 25px;
   /*background-color: rgba(0, 128, 0, 0.24);*/
+}
+
+a{
+	cursor:pointer ;
 }
 
 </style>

@@ -1,13 +1,72 @@
 import axios from 'axios'
 
 export default class SettingService {
-	getWechatSetting(){	
-        return {
-            curl:"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=cfcfd8ae-b0be-408d-8e3f-28295615cc97",
-            messagetype:"text",
-            user: ['all']
-        }
+
+  //获取所有报警方式
+  getAllAlarmRule(){
+
+  }
+
+  updateAlarmRule(selectType,isSelect){
+    var selectMethod=0
+    switch(selectType){
+      case 'phone':
+        selectMethod=2
+        break
+        case 'sms':
+          selectMethod=2
+          break
+        case 'email':
+          selectMethod=3
+          break
+        default:
+          selectMethod=1
+          break
     }
+    var alarmRulebody={
+      alarmMethod: selectMethod,
+      isEnabled: isSelect,
+      intervalTime: 0,
+      alarmNumber: 0
+    }
+
+    return (axios.post("http://192.168.158.17:30872/api/Alarm/Update", alarmRulebody));
+  }
+
+  addWeComText(url,text){
+    var model={
+      WebhookUrl: url,
+      Content: text
+    }
+    return (axios.post("http://192.168.158.17:30872/api/WeComText/Add", model));
+  }
+
+  updateWeComText(item){
+    return (axios.post("http://192.168.158.17:30872/api/WeComText/Update", item));
+  }
+
+  deleteWeConText(id){
+    return (axios.get("http://192.168.158.17:30872/api/WeComText/Delete/"+id))
+  }
+
+  getAllWeComText(){
+    return (axios.get("http://192.168.158.17:30872/api/WeComText"))
+  }
+
+	getWechatSetting(){	
+    // var checkUrl = "http://192.168.158.17:30872/api/WeComText"
+    // return (axios.get(checkUrl));
+    return {
+        curl:"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=cfcfd8ae-b0be-408d-8e3f-28295615cc97",
+        messagetype:"text",
+        user: ['all'],
+        content:'系统炸了！'
+    }
+  }
+
+  updateWechetSetting(wechatModel){
+    return wechatModel
+  }
 	
 	getMailSetting(){
     return{
@@ -36,7 +95,7 @@ export default class SettingService {
   }
 
   getRemindAllUser(){
-    return ['all', '8166 高成锋（Vico）', '8150 宋国朋（Sam）','宋国朋','songguopeng']
+    return ['all']
   }
             
   startAlert(){
@@ -49,6 +108,10 @@ export default class SettingService {
   
   setTimeRefresh(value){
     return (axios.get("http://192.168.158.17:32524/api/HealthCheck/Start?interval=" + value));
+  }
+
+  setAlertTimeCycle(){
+
   }
   
 }

@@ -47,26 +47,26 @@ export default {
 											{label: '显示中心', icon: 'pi pi-fw pi-home', to: '/',},
 										]
                 },
-								{
-									label: '其他', icon: 'pi pi-fw pi-sitemap',
-									items: [
-										{label: '日志事件', icon: 'pi pi-fw pi-id-card', to: '/log'},
-									]
-								},
-                {
-									label: '负载详情', icon: 'pi pi-fw pi-sitemap',
-									items: [
-										{label: '集群节点', icon: 'pi pi-fw pi-id-card', to: '/clusternode'},
-                    {label: 'CPU', icon: 'pi pi-fw pi-id-card', to: '/cpu'},
-                    {label: '容器组', icon: 'pi pi-fw pi-id-card', to: '/containergroup'},
-                    {label: '内存', icon: 'pi pi-fw pi-id-card', to: '/memory'},
-                    {label: '磁盘', icon: 'pi pi-fw pi-id-card', to: '/disk'},
-									]
-								},
+				// 				{
+				// 					label: '其他', icon: 'pi pi-fw pi-sitemap',
+				// 					items: [
+				// 						{label: '日志事件', icon: 'pi pi-fw pi-id-card', to: '/log'},
+				// 					]
+				// 				},
+                // {
+				// 					label: '负载详情', icon: 'pi pi-fw pi-sitemap',
+				// 					items: [
+				// 						{label: '集群节点', icon: 'pi pi-fw pi-id-card', to: '/clusternode'},
+                //     {label: 'CPU', icon: 'pi pi-fw pi-id-card', to: '/cpu'},
+                //     {label: '容器组', icon: 'pi pi-fw pi-id-card', to: '/containergroup'},
+                //     {label: '内存', icon: 'pi pi-fw pi-id-card', to: '/memory'},
+                //     {label: '磁盘', icon: 'pi pi-fw pi-id-card', to: '/disk'},
+				// 					]
+				// 				},
 								{
 									label: '用户设置', icon: 'pi pi-fw pi-sitemap',
 									items: [
-										{label: '用户中心', icon: 'pi pi-fw pi-id-card', to: '/user'},
+										// {label: '用户中心', icon: 'pi pi-fw pi-id-card', to: '/user'},
 										{label: '设置', icon: 'pi pi-fw pi-id-card', to: '/setting'},
 									]
 								},

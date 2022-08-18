@@ -78,7 +78,7 @@
 						<!--企业微信-->
 						<n-collapse-item title="企业微信" v-if="wechat" name="wechat">
 							<div>
-                <n-modal :show="ModalShow">
+								<n-modal :show="ModalShow">
 									<n-card
 									style="width:600px"
 									:bordered="false"
@@ -94,24 +94,89 @@
 									</n-space>
 									</n-card>
 								</n-modal>
+								<n-modal :show="AddWechatItem">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<h5  style="margin-top:-10px;">添加微信群</h5>
+									<hr/>
+									<p></p>
+									<n-form        
+										label-placement="left"     
+										label-width="auto" 
+										require-mark-placement="right-hanging"
+										:size="size"  
+										:style="{       maxWidth: '640px'     }"    
+									> 
+										<n-form-item label="群名称" style="margin-top:20px;">
+											<n-input placeholder="群名称"></n-input>
+										</n-form-item>
+										<n-form-item label="机器人">
+											<n-input placeholder="webhookUrl" v-model:value=newWechatModel.WebhookUrl></n-input>
+										</n-form-item>
+									</n-form>
+									<!-- <n-input placeholder="输入群机器人webhookUrl" v-model:value=newWechatModel.WebhookUrl></n-input> -->
+									<p></p>
+									<n-space>
+										<n-button round @click="addWechatItem()">发送</n-button>
+										<n-button round @click="AddWechatItem=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
+								<n-modal :show="EditWechatItem">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<h5  style="margin-top:-10px;">编辑微信群</h5>
+									<hr/>
+									<p></p>
+									<n-form        
+										label-placement="left"     
+										label-width="auto" 
+										require-mark-placement="right-hanging"
+										:size="size"  
+										:style="{       maxWidth: '640px'     }"    
+									> 
+										<n-form-item label="群名称" style="margin-top:20px;">
+											<n-input placeholder="群名称"></n-input>
+										</n-form-item>
+										<n-form-item label="机器人">
+											<n-input placeholder="webhookUrl" v-model:value=editWechatModel.webhookUrl></n-input>
+										</n-form-item>
+									</n-form>
+									<!-- <n-input placeholder="输入群机器人webhookUrl" v-model:value=newWechatModel.WebhookUrl></n-input> -->
+									<p></p>
+									<n-space>
+										<n-button round @click="editWeConTextItem()">发送</n-button>
+										<n-button round @click="EditWechatItem=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
 								<n-form        
 									label-placement="left"     
 									label-width="auto" 
 									require-mark-placement="right-hanging"
 									:size="size"  
 									:style="{       maxWidth: '640px'     }"   
-									v-if="!editwechat"
-								>     
-								<n-form-item label="Webhook URL:" >
-									<n-tag :bordered="false" round>{{model.curl}}</n-tag>
-								</n-form-item> 
-								<n-form-item label="特别提醒:">  
+									v-if="editwechat"
+								>   
+								<div v-for="item in allWeComText" :key="item">
+									<n-form-item label="Webhook URL:" >
+										<n-tag :bordered="false" round>{{item.webhookUrl}}</n-tag><br/>
+										<n-button style="margin-left:15px;" round type="success" secondary size="small" @click="editItem(item)">编辑</n-button> 
+										<n-button style="margin-left:15px;" round type="success" secondary size="small" @click="deleteItem(item)">删除</n-button> 	
+									</n-form-item> 
+								</div>
+								<!-- <n-form-item label="特别提醒:">  
 									<div v-for="item in model.user" :key="item.id" v-bind="item" style="margin-right:5px;">
-										<!-- <n-avatar 
-										:style="{color:'yellow',backgroundColor:'',}" 
-										round 
-										v-tooltip.bottom="item.name"
-										>{{item.element}}</n-avatar>	 -->
 										<n-tag round :bordered="false">
 										{{item.element}}
 										<template #avatar>
@@ -125,11 +190,12 @@
 								</n-form-item>  
 								<n-form-item label="消息类型:" >     
 									<n-tag :bordered="false" round>{{model.messagetype}}</n-tag>
-								</n-form-item> 
+								</n-form-item>  -->
 								<div style="display: flex; justify-content: ">   
 									<n-space>
-										<n-button round type="success" secondary size="small" @click="editWechat()">编辑</n-button>
-                    <n-button round type="success" secondary size="small" @click="ModalShow=true">发送消息测试</n-button>  	
+										<!-- <n-button round type="success" secondary size="small" @click="editWechat()">编辑</n-button>
+                    <n-button round type="success" secondary size="small" @click="ModalShow=true">发送消息测试</n-button>   -->
+					<n-button round type="success" secondary size="small" @click="AddWechatItem=true">添加</n-button> 	
 										<n-spin size="small" v-if="showmodel.testingWechat_spin" stroke="#21a35c">
 											<n-button round :bordered="false">消息发送中...</n-button>
 										</n-spin>
@@ -146,7 +212,7 @@
 									v-else
 								>     
 								<n-form-item label="Webhook URL:" >
-									<n-input placeholder="Input" round v-model:value="model.curl"></n-input>	
+									<n-input placeholder="Input" v-model:value="model.curl"></n-input>
 								</n-form-item> 
 								<n-form-item label="特别提醒:">  
 								<n-select      
@@ -155,7 +221,7 @@
 									:options="generalOptions"      
 									multiple 
 									round  
-                  clearable
+									clearable
 								/>   
 								</n-form-item>  
 								<n-form-item label="消息类型:" >     
@@ -171,6 +237,9 @@
 									</n-radio>     
 									</n-radio-group>   
 								</n-form-item>   
+								<n-form-item label="报警提示信息:" >     
+									<n-input type="textarea" placeholder="Warning!"/>
+								</n-form-item>  
 								<div style="display: flex; justify-content: ">     
 									<n-space>
 										<n-button round size="small" @click="saveChange()" secondary type="success">保存</n-button>  
@@ -465,7 +534,10 @@ export default {
 			ModalShow:ref(false),
 			SmsModalShow:ref(false),
 			PhoneModalShow:ref(false),
-      MailModalShow:ref(false),
+			MailModalShow:ref(false),
+
+			AddWechatItem:ref(false),
+			EditWechatItem:ref(false),
 
 			showmodel:reactive({
 				testingWechat_spin:ref(false),
@@ -487,6 +559,8 @@ export default {
 				user: []	
 			}),
 
+			allWeComText:[],
+
 			wechatModel:reactive({
 				curl:"",
 				content:{
@@ -498,6 +572,20 @@ export default {
 					}
 				}
 			}),
+			newWechatModel:ref({
+				WebhookUrl: '',
+				Content: 'Boon!'
+			}),
+
+			editWechatModel:{
+				id:0,
+				WebhookUrl: '',
+				Content: ''
+			},
+			// xx={
+			// 	WebhookUrl: 'string;',
+			// 	Content: 'string;'
+			// },
 
 			smsmodel:ref({
 				url:"",
@@ -532,6 +620,7 @@ export default {
 	},
 	mounted(){
 		this.init();
+		this.initSettingValue()
 	},
 	
 	methods:{
@@ -593,10 +682,58 @@ export default {
 				this.editphone = false
 			}
 		},
-    saveChange_mail(){
+		saveChange_mail(){
 			if(this.checkValidity()){
 				this.editmail = false
 			}
+		},
+		addWechatItem(){
+			//console.log(this.newWechatModel)
+			this.AddWechatItem=false
+			try{
+				this.settingService.addWeComText(this.newWechatModel.WebhookUrl,this.newWechatModel.Content).then(res=>{
+					if(res.status===200){
+						window.$message.success('添加成功！', { duration: 5e3 })
+						this.initSettingValue()
+					}else{
+						window.$message.error('添加失败！', { duration: 5e3 })
+					}
+				})
+			}catch(err){
+				console.log(err)
+				window.$message.error('添加失败！', { duration: 5e3 })
+			}
+		},
+
+		editItem(item){
+			this.editWechatModel=item
+			this.EditWechatItem=true
+			console.log(this.editWechatModel)
+		},
+
+		deleteItem(item){
+			this.settingService.deleteWeConText(item.id).then(res=>{
+				if(res.status===200){
+					window.$message.success('删除成功！', { duration: 5e3 })
+					this.initSettingValue()
+				}else{
+					window.$message.error('删除失败！', { duration: 5e3 })
+				}
+			})
+		},
+
+		editWeConTextItem(){
+			//this.editWechatModel=item
+			this.EditWechatItem=false
+			console.log(this.editWechatModel)
+
+			this.settingService.updateWeComText(this.editWechatModel).then(res=>{
+				if(res.status===200){
+					window.$message.success('编辑成功！', { duration: 5e3 })
+				}else{
+					window.$message.error('编辑失败！', { duration: 5e3 })
+				}
+			})
 		},
 
 		TestWechatChange(){
@@ -700,27 +837,58 @@ export default {
     },
     
     smsSwitchClick(){
-			if(this.sms){
-				window.$message.success("已开启短信通知！")
-      }else{
-				window.$message.info("已关闭短信通知！")
-      }
+		if(this.sms){
+			this.settingService.updateAlarmRule('sms',true).then(res=>{
+				if(res.status===200){
+					window.$message.success("已开启短信通知！")
+				}else{
+					window.$message.error("开启短信通知失败！")
+					this.phone=false
+				}
+			})
+		}else{
+			this.settingService.updateAlarmRule('sms',false).then(res=>{
+				if(res.status===200){
+					window.$message.success("已关闭短信通知！")
+				}else{
+					window.$message.error("关闭短信通知失败！")
+					this.phone=true
+				}
+			})
+		}
     },
     
     phoneSwitchClick(){
-			if(this.phone){
-				window.$message.success("已开启电话通知！")
-      }else{
-				window.$message.info("已关闭电话通知！")
-      }
+		if(this.phone){
+			this.settingService.updateAlarmRule('phone',true).then(res=>{
+				if(res.status===200){
+					window.$message.success("已开启电话通知！")
+				}else{
+					window.$message.error("开启电话通知失败！")
+					this.phone=false
+				}
+			})
+		}else{
+			this.settingService.updateAlarmRule('phone',false).then(res=>{
+				if(res.status===200){
+					window.$message.success("已关闭电话通知！")
+				}else{
+					window.$message.error("关闭电话通知失败！")
+					this.phone=true
+				}
+			})
+		}
     },
     
     emailSwitchClick(){
-			if(this.mail){
-				window.$message.success("已开启邮件通知！")
-      }else{
-				window.$message.info("已关闭邮件通知！")
-      }
+		// if(this.mail){
+
+		// 	window.$message.success("已开启邮件通知！")
+		// }else{
+		// 			window.$message.info("已关闭邮件通知！")
+		// }
+		window.$message.info("Todo")
+		this.mail=this.mail?false:true
     },
     
     wechatSwitchClick(){
@@ -731,7 +899,12 @@ export default {
 		checkValidity(){
 			return true
 		},
-		
+		initSettingValue(){
+			this.settingService.getAllWeComText().then(res=>{
+				this.allWeComText=res.data
+				console.log(this.allWeComText)
+			})
+		},
 		init(){
 			const settingservice=new SettingService();
 			this.model=settingservice.getWechatSetting()
