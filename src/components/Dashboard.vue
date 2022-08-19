@@ -676,7 +676,7 @@ export default {
 			this.checkItem=res.data
 			res.data.forEach(element => {
 				var item={
-					state:false,
+					state:true,
 					value:element
 				}
 				cardDate_copy.push(item)
@@ -695,11 +695,16 @@ export default {
             if(this.cardData[i].value.isUseStatusCode==='1'){
 							if(res.data.responseStatusCode===200){
 								this.cardData[i].state=true
+              }else{
+								this.cardData[i].state=false
               }
             }
 						else if(res.data.responseContent===this.cardData[i].value.responseContent){
 							this.cardData[i].state=true
 						}
+            else{
+							this.cardData[i].state=false
+            }
 					})
 				}catch(err){
 					this.cardData[i].state = false;

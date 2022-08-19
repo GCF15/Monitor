@@ -29,12 +29,12 @@
 							<n-button style="margin-left:20px;" round secondary type="success" size="small" @click="setAlertTime()">应用</n-button>
 						</n-form-item>  
             
-            <n-form-item label="数据刷新时间" >
+            <!--<n-form-item label="数据刷新时间" >
 							<n-input-number v-model:value="timeRefresh" :show-button="true" clearable round style="width:150px;">
 								<template #suffix>s</template>
 							</n-input-number>
 							<n-button style="margin-left:20px;" round secondary type="success" size="small" @click="setRefreshTime()">应用</n-button>
-						</n-form-item>  
+						</n-form-item>  -->
 	
 								
 					</n-form>
@@ -52,7 +52,7 @@
 				<div style="margin-left:40px;">
 					<n-space>
 						<n-icon style="margin-left:10px;" size="28" :component="WechatFilled"></n-icon>	
-						<n-switch v-model:value="wechat" @click="wechatSwitchClick()" size="small" disabled>
+						<n-switch v-model:value="wechat" @click="wechatSwitchClick()" size="small">
 							<template #checked>企业微信</template>
 							<template #unchecked>企业微信</template>
 						</n-switch>
@@ -86,10 +86,10 @@
 									role="dialog"
 									aria-modal="true"
 									>
-									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value=wechatModel.content.text.content></n-input>
+									<n-input type="textarea" placeholder="输入要发送消息，点击“发送”按钮进行测试！" v-model:value=testWeComModel.text></n-input>
 									<p></p>
 									<n-space>
-										<n-button round @click="TestWechatChange()">发送</n-button>
+										<n-button round @click="TestWeComSend()">发送</n-button>
 										<n-button round @click="ModalShow=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -171,8 +171,17 @@
 								<div v-for="item in allWeComText" :key="item">
 									<n-form-item label="Webhook URL:" >
 										<n-tag :bordered="false" round>{{item.webhookUrl}}</n-tag><br/>
-										<n-button style="margin-left:15px;" round type="success" secondary size="small" @click="editItem(item)">编辑</n-button> 
-										<n-button style="margin-left:15px;" round type="success" secondary size="small" @click="deleteItem(item)">删除</n-button> 	
+										<n-button style="margin-left:10px;" round type="success" secondary size="small" @click="editItem(item)">编辑</n-button> 
+                    <n-popconfirm
+                      @positive-click="deleteItem(item)"
+                      @negative-click="handleNegativeClick"
+                    >
+                      <template #trigger>
+                        <n-button style="margin-left:10px;" round type="success" secondary size="small">删除</n-button>
+                      </template>
+                      确定要删除吗？
+                    </n-popconfirm>
+                    <n-button round type="success" style="margin-left:10px;" secondary size="small" @click="TestWeCom(item.webhookUrl)">测试</n-button>   
 									</n-form-item> 
 								</div>
 								<!-- <n-form-item label="特别提醒:">  
@@ -341,17 +350,97 @@
 									</n-space>
 									</n-card>
 								</n-modal>
+                <n-modal :show="AddPhoneItem">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<h5  style="margin-top:-10px;">添加电话</h5>
+									<hr/>
+									<p></p>
+									<n-form        
+										label-placement="left"     
+										label-width="auto" 
+										require-mark-placement="right-hanging"
+										:size="size"  
+										:style="{       maxWidth: '640px'     }"    
+									> 
+										<n-form-item label="号码主人" style="margin-top:20px;">
+											<n-input placeholder="马大哈"></n-input>
+										</n-form-item>
+										<n-form-item label="号码">
+											<n-input placeholder="135********" v-model:value="newPhoneModel.Phone"></n-input>
+										</n-form-item>
+									</n-form>
+									<p></p>
+									<n-space>
+										<n-button round @click="addPhoneItem()">发送</n-button>
+										<n-button round @click="AddPhoneItem=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
+                <n-modal :show="EditPhoneItem">
+									<n-card
+									style="width:600px"
+									:bordered="false"
+									size="huge"
+									role="dialog"
+									aria-modal="true"
+									>
+									<h5  style="margin-top:-10px;">编辑电话</h5>
+									<hr/>
+									<p></p>
+									<n-form        
+										label-placement="left"     
+										label-width="auto" 
+										require-mark-placement="right-hanging"
+										:size="size"  
+										:style="{       maxWidth: '640px'     }"    
+									> 
+										<n-form-item label="号码主人" style="margin-top:20px;">
+											<n-input placeholder="马大哈"></n-input>
+										</n-form-item>
+										<n-form-item label="号码">
+											<n-input placeholder="135********" v-model:value="editPhoneModel.phone"></n-input>
+										</n-form-item>
+									</n-form>
+									<p></p>
+									<n-space>
+										<n-button round @click="editPhoneItemSend()">发送</n-button>
+										<n-button round @click="EditPhoneItem=false">取消</n-button>
+									</n-space>
+									</n-card>
+								</n-modal>
 								<n-form        
 									label-placement="left"     
 									label-width="auto" 
 									require-mark-placement="right-hanging"
 									:size="size"  
 									:style="{       maxWidth: '640px'     }"   
-									v-if="!editphone"
+									v-if="editphone"
 								>     
-								<n-form-item label="电话号码:" >
+                <div v-for="item in allNumbersByPhone" :key="item">
+									<n-form-item label="电话号码:" >
+										<n-tag :bordered="false" round>{{item.phone}}</n-tag><br/>
+										<n-button style="margin-left:10px;" round type="success" secondary size="small" @click="editPhoneItem(item)">编辑</n-button> 
+                    <n-popconfirm
+                      @positive-click="deletePhoneItem(item)"
+                      @negative-click="handleNegativeClick"
+                    >
+                      <template #trigger>
+                        <n-button style="margin-left:10px;" round type="success" secondary size="small">删除</n-button>
+                      </template>
+                      确定要删除吗？
+                    </n-popconfirm>
+                    <n-button round type="success" style="margin-left:10px;" secondary size="small" @click="xxxxxxx(item.webhookUrl)">测试</n-button>   
+									</n-form-item> 
+								</div>
+								<!--<n-form-item label="电话号码:" >
 									<n-tag :bordered="false" round>{{phonemodel.phone}}</n-tag>
-								</n-form-item>  
+								</n-form-item>  -->
                 <div v-if="showPhoneAdvanceOption">
 								<n-form-item label="templateId:" >
 									<n-tag :bordered="false" round>{{phonemodel.templateid}}</n-tag>
@@ -362,7 +451,8 @@
                 </div> 
 								<div style="display: flex; justify-content: ">     
 									<n-space>
-										<n-button round secondary type="info" size="small"  @click="editPhone()">编辑</n-button> 	
+                    <n-button round secondary type="info" size="small" @click="AddPhoneItem=true">添加</n-button>
+										<!--<n-button round secondary type="info" size="small"  @click="editPhone()">编辑</n-button> 	-->
                     <n-button round secondary type="info" size="small" @click="showPhoneAdvanceOption=true" v-if="!showPhoneAdvanceOption">高级选项</n-button>	
                     <n-button round secondary type="info" size="small" @click="showPhoneAdvanceOption=false" v-else>隐藏高级选项</n-button>	
 									</n-space>
@@ -523,10 +613,11 @@ export default {
 			timeRefresh:ref(5),
       settingService:new SettingService(),
 
+      //四种报警方式是否开启
 			wechat:ref(true),
 			mail:ref(false),
-			phone:ref(true),
-			sms:ref(true),
+			phone:ref(false),
+			sms:ref(false),
       
       showSmsAdvanceOption:ref(false),
       showPhoneAdvanceOption:ref(false),
@@ -538,6 +629,8 @@ export default {
 
 			AddWechatItem:ref(false),
 			EditWechatItem:ref(false),
+      AddPhoneItem:ref(false),
+			EditPhoneItem:ref(false),
 
 			showmodel:reactive({
 				testingWechat_spin:ref(false),
@@ -552,6 +645,10 @@ export default {
       editmail:ref(true),
 
 			messagetype:ref("text"),
+      testWeComModel:{
+				curl:'',
+        text:''
+      },
 			
 			model:reactive({
 				curl:"",
@@ -560,6 +657,8 @@ export default {
 			}),
 
 			allWeComText:[],
+      allNumbersByPhone:[],
+      allNumbersBySms:[],
 
 			wechatModel:reactive({
 				curl:"",
@@ -572,20 +671,36 @@ export default {
 					}
 				}
 			}),
+      //新增企业微信model
 			newWechatModel:ref({
 				WebhookUrl: '',
-				Content: 'Boon!'
+				Content: '{"msgtype":"text","text":{"content":"检测服务出现异常！","mentioned_list":["@all"],"mentioned_mobile_list":null}}'
 			}),
+      //新增Phone model
+			newPhoneModel:{
+        Url: "http://yzxyytz.market.alicloudapi.com/yzx/voiceNotifySms",
+        Phone: "",
+        TemplateId: "TP2109015",
+        Variable: "Monitor Add",
+        Appcode: "cc2b702e050c417db4f8a36d35ebfd38"
+			},
 
+      //编辑wechat的model
 			editWechatModel:{
 				id:0,
 				WebhookUrl: '',
 				Content: ''
 			},
-			// xx={
-			// 	WebhookUrl: 'string;',
-			// 	Content: 'string;'
-			// },
+      
+      editPhoneModel:{
+        id:0,
+				url: "",
+        phone: "",
+        TemplateId: "",
+        Variable: "",
+        Appcode: ""
+      },
+			
 
 			smsmodel:ref({
 				url:"",
@@ -687,6 +802,8 @@ export default {
 				this.editmail = false
 			}
 		},
+    
+    //添加企业微信群聊
 		addWechatItem(){
 			//console.log(this.newWechatModel)
 			this.AddWechatItem=false
@@ -694,7 +811,28 @@ export default {
 				this.settingService.addWeComText(this.newWechatModel.WebhookUrl,this.newWechatModel.Content).then(res=>{
 					if(res.status===200){
 						window.$message.success('添加成功！', { duration: 5e3 })
-						this.initSettingValue()
+            this.newWechatModel.WebhookUrl=''
+						this.getAllWeComText()
+					}else{
+						window.$message.error('添加失败！', { duration: 5e3 })
+					}
+				})
+			}catch(err){
+				console.log(err)
+				window.$message.error('添加失败！', { duration: 5e3 })
+			}
+		},
+    
+    //添加电话通知号码
+    addPhoneItem(){
+			//console.log(this.newPhoneModel.Phone)
+			this.AddPhoneItem=false
+			try{
+				this.settingService.addNumberForPhone(this.newPhoneModel).then(res=>{
+					if(res.status===200){
+						window.$message.success('添加成功！', { duration: 5e3 })
+            this.newPhoneModel.Phone=''
+						this.getAllNumbersByPhone()
 					}else{
 						window.$message.error('添加失败！', { duration: 5e3 })
 					}
@@ -705,27 +843,47 @@ export default {
 			}
 		},
 
+    //拉起wechat编辑
 		editItem(item){
 			this.editWechatModel=item
 			this.EditWechatItem=true
-			console.log(this.editWechatModel)
+		},
+    
+    //拉起Phone编辑
+		editPhoneItem(item){
+      this.EditPhoneItem=true
+			this.editPhoneModel=item
+      //console.log(this.editPhoneModel)
 		},
 
+    //删除企业微信群
 		deleteItem(item){
 			this.settingService.deleteWeConText(item.id).then(res=>{
 				if(res.status===200){
 					window.$message.success('删除成功！', { duration: 5e3 })
-					this.initSettingValue()
+					this.getAllWeComText()
 				}else{
 					window.$message.error('删除失败！', { duration: 5e3 })
 				}
 			})
 		},
+    
+    //删除电话报警方式号码
+    deletePhoneItem(item){
+			this.settingService.deleteNumberForPhone(item.id).then(res=>{
+				if(res.status===200){
+					window.$message.success('删除成功！', { duration: 5e3 })
+					this.getAllNumbersByPhone()
+				}else{
+					window.$message.error('删除失败！', { duration: 5e3 })
+				}
+			})
+    },
 
+    //编辑企业微信item
 		editWeConTextItem(){
 			//this.editWechatModel=item
 			this.EditWechatItem=false
-			console.log(this.editWechatModel)
 
 			this.settingService.updateWeComText(this.editWechatModel).then(res=>{
 				if(res.status===200){
@@ -735,7 +893,47 @@ export default {
 				}
 			})
 		},
+    
+    //编辑Phone item
+		editPhoneItemSend(){
+			this.EditPhoneItem=false
 
+      //console.log(this.editPhoneModel)
+			this.settingService.updateNumberForPhone(this.editPhoneModel).then(res=>{
+				if(res.status===200){
+					window.$message.success('编辑成功！', { duration: 5e3 })
+				}else{
+					window.$message.error('编辑失败！', { duration: 5e3 })
+				}
+			})
+		},
+    
+    //打开企业微信测试模态框
+    TestWeCom(webhookUrl){
+			this.ModalShow=true
+      //this.TestWeComSend()
+      this.testWeComModel.curl=webhookUrl
+    },
+    
+    //发送企业微信消息测试
+    TestWeComSend(){
+      try{
+        this.settingService.testWeComtext(this.testWeComModel.curl,this.testWeComModel.text).then(res=>{
+          if(res.data.errcode===0){
+            window.$message.success('发送成功，请前往企业微信群查看验证！', { duration: 5e3 })
+          }
+          else{
+            window.$message.error(res.data.errmsg, { duration: 5e3 })
+          }
+        })	
+      }catch(err){
+        window.$message.error(err, { duration: 5e3 })
+      }
+			
+      this.ModalShow=false
+    },
+    
+    //测试企业微信（保留）
 		TestWechatChange(){
 			this.ModalShow=false
 			this.showmodel.testingWechat_spin=true
@@ -779,6 +977,7 @@ export default {
       this.showmodel.testingWechat_spin=false
 		},
 
+    //测试短信验证方式
 		TestSmsChange(type){
 			
 			this.showmodel.testingsms_spin=true
@@ -836,7 +1035,10 @@ export default {
       window.$message.info("Todo", { duration: 5e3 })
     },
     
+    //启动or关闭短信报警方式
     smsSwitchClick(){
+//      window.$message.info("Todo")
+//      this.sms=this.sms?false:true
 		if(this.sms){
 			this.settingService.updateAlarmRule('sms',true).then(res=>{
 				if(res.status===200){
@@ -858,7 +1060,11 @@ export default {
 		}
     },
     
+    //启动or关闭电话报警方式
     phoneSwitchClick(){
+//      window.$message.info("Todo")
+//      this.phone=this.phone?false:true
+      
 		if(this.phone){
 			this.settingService.updateAlarmRule('phone',true).then(res=>{
 				if(res.status===200){
@@ -887,24 +1093,106 @@ export default {
 		// }else{
 		// 			window.$message.info("已关闭邮件通知！")
 		// }
-		window.$message.info("Todo")
-		this.mail=this.mail?false:true
+      window.$message.info("Todo")
+      this.mail=this.mail?false:true
     },
     
     wechatSwitchClick(){
-			window.$message.info("企业微信为必选报警方式，不允许关闭！")
+			//window.$message.info("企业微信为必选报警方式，不允许关闭！")
+      if(this.wechat){
+			this.settingService.updateAlarmRule('wechat',true).then(res=>{
+				if(res.status===200){
+					window.$message.success("已开启企业微信通知！")
+				}else{
+					window.$message.error("开启企业微信通知失败！")
+					this.phone=false
+				}
+			})
+		}else{
+			this.settingService.updateAlarmRule('wechat',false).then(res=>{
+				if(res.status===200){
+					window.$message.success("已关闭企业微信通知！")
+				}else{
+					window.$message.error("关闭企业微信通知失败！")
+					this.phone=true
+				}
+			})
+		}
     },
 
 		//校验合法性
 		checkValidity(){
 			return true
 		},
+    //初始化设置项
 		initSettingValue(){
-			this.settingService.getAllWeComText().then(res=>{
-				this.allWeComText=res.data
-				console.log(this.allWeComText)
-			})
+      //初始化获取四种监控方式数据状态
+      /*default
+        wechat:ref(true)
+			  mail:ref(false)
+			  phone:ref(false)
+			  sms:ref(false)
+      */
+      this.settingService.getAllAlarmRule().then(res=>{
+				if(res.status===200){
+					res.data.forEach(item=>{
+            //console.log(item.alarmMethod+":"+item.isEnabled)
+						switch(item.alarmMethod){
+							case 1://WeCom
+                this.wechat=item.isEnabled
+                if(this.wechat){//如果启动企业微信报警，获取微信群列表
+									this.getAllWeComText()
+                }
+                break
+              case 2://mail
+                this.mail=item.isEnabled
+                break
+              case 3://phone
+                this.phone=item.isEnabled
+                if(this.phone){//如果启动电话报警，获取电话列表
+									this.getAllNumbersByPhone()
+                }
+                break
+              case 4://sms
+                this.sms=item.isEnabled
+                if(this.sms){//如果启动短信报警，获取电话列表
+									//this.getAllNumbersBySms()
+                }
+                break
+              default:
+                break
+            }
+          })
+        }
+      })
+ 
 		},
+    
+    //获取微信群列表
+    getAllWeComText(){
+			this.settingService.getAllWeComText().then(res=>{
+          this.allWeComText=res.data
+        })	
+    },
+    
+    //获取电话列表
+    getAllNumbersByPhone(){
+			this.settingService.getAllNumbersByPhone().then(res=>{
+					this.allNumbersByPhone=res.data
+          //console.log(this.allNumbersByPhone)
+        })
+    },
+    
+    //获取电话列表
+    getAllNumbersBySms(){
+			
+    },
+    
+    //初始化报警间隔时间
+    initTimeRefreshValue(){
+      //TODO
+    },
+    //初始化
 		init(){
 			const settingservice=new SettingService();
 			this.model=settingservice.getWechatSetting()

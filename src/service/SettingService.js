@@ -4,20 +4,30 @@ export default class SettingService {
 
   //获取所有报警方式
   getAllAlarmRule(){
-
+    return (axios.get("http://192.168.158.17:30872/api/Alarm"));
+  }
+    
+  //获取所有电话方式电话号码
+  getAllNumbersByPhone(){
+    return (axios.get("http://192.168.158.17:30872/api/PhoneOrMessage"));
+  }
+  
+  //获取所有短信方式电话号码
+  getAllNumbersBySms() {
+    
   }
 
   updateAlarmRule(selectType,isSelect){
     var selectMethod=0
     switch(selectType){
       case 'phone':
-        selectMethod=2
+        selectMethod=3
         break
         case 'sms':
-          selectMethod=2
+          selectMethod=4
           break
-        case 'email':
-          selectMethod=3
+        case 'mail':
+          selectMethod=2
           break
         default:
           selectMethod=1
@@ -40,17 +50,37 @@ export default class SettingService {
     }
     return (axios.post("http://192.168.158.17:30872/api/WeComText/Add", model));
   }
+  
+  addNumberForPhone(model){
+    return (axios.post("http://192.168.158.17:30872/api/PhoneOrMessage/Add", model));
+  }
 
   updateWeComText(item){
     return (axios.post("http://192.168.158.17:30872/api/WeComText/Update", item));
   }
-
-  deleteWeConText(id){
+  
+  updateNumberForPhone(item) {
+    return (axios.post("http://192.168.158.17:30872/api/WeComText/Update", item));
+  }
+  
+  deleteWeConText (id){
     return (axios.get("http://192.168.158.17:30872/api/WeComText/Delete/"+id))
   }
-
+  
+  deleteNumberForPhone(id){
+    return (axios.get("http://192.168.158.17:30872/api/PhoneOrMessage/Delete/"+id))
+  }
+  
   getAllWeComText(){
     return (axios.get("http://192.168.158.17:30872/api/WeComText"))
+  }
+  
+  testWeComtext(curl,text){
+    var body = {
+      WebhookUrl: curl,
+      Content: "{\"msgtype\": \"text\",\"text\": {\"content\": \"" + text+"\",\"mentioned_list\":[\"@all\"],\"mentioned_mobile_list\":null}}"
+    }
+    return (axios.post("http://192.168.158.17:30346/api/Alarm/WeComText", body))
   }
 
 	getWechatSetting(){	
