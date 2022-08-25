@@ -12,11 +12,12 @@ export default class SettingService {
     return (axios.get("http://192.168.158.17:30872/api/PhoneOrMessage"));
   }
   
-  //获取所有短信方式电话号码
-  getAllNumbersBySms() {
-    
+  //获取所有邮箱
+  getAllEmails(){
+    return (axios.get("http://192.168.158.17:30872/api/Email"));
   }
-
+  
+  //开启/关闭
   updateAlarmRule(selectType,isSelect){
     var selectMethod=0
     switch(selectType){
@@ -43,24 +44,40 @@ export default class SettingService {
     return (axios.post("http://192.168.158.17:30872/api/Alarm/Update", alarmRulebody));
   }
 
-  addWeComText(url,text){
-    var model={
-      WebhookUrl: url,
-      Content: text
-    }
+  //添加企业微信
+  addWeComText(model){
     return (axios.post("http://192.168.158.17:30872/api/WeComText/Add", model));
   }
   
+  //添加电话号码
   addNumberForPhone(model){
     return (axios.post("http://192.168.158.17:30872/api/PhoneOrMessage/Add", model));
   }
+  
+  //添加邮箱
+  addEmail(model){
+    return (axios.post("http://192.168.158.17:30872/api/Email/Add",model))
+  }
+  
+  //删除邮箱
+  deleteEmail(id){
+    return (axios.get("http://192.168.158.17:30872/api/Email/Delete/"+id))
+  }
 
+  //更新企业微信
   updateWeComText(item){
     return (axios.post("http://192.168.158.17:30872/api/WeComText/Update", item));
   }
   
+  //更新电话Or短信
   updateNumberForPhone(item) {
-    return (axios.post("http://192.168.158.17:30872/api/WeComText/Update", item));
+    return (axios.post("http://192.168.158.17:30872/api/PhoneOrMessage/Update", item));
+  }
+  
+  //更新邮箱
+  editEmail(item){
+  console.log(item)
+    return (axios.post("http://192.168.158.17:30872/api/Email/Update", item));
   }
   
   deleteWeConText (id){
@@ -75,53 +92,23 @@ export default class SettingService {
     return (axios.get("http://192.168.158.17:30872/api/WeComText"))
   }
   
-  testWeComtext(curl,text){
-    var body = {
-      WebhookUrl: curl,
-      Content: "{\"msgtype\": \"text\",\"text\": {\"content\": \"" + text+"\",\"mentioned_list\":[\"@all\"],\"mentioned_mobile_list\":null}}"
-    }
-    return (axios.post("http://192.168.158.17:30346/api/Alarm/WeComText", body))
+  //测试企业微信
+  testWeComtext(model){
+    var body= model.message
+    //console.log(body)
+    var url="http://192.168.158.17:30346/api/Alarm/WeComText?webhookUrl="+model.webhookUrl
+    return (axios.post(url, body))
   }
-
-	getWechatSetting(){	
-    // var checkUrl = "http://192.168.158.17:30872/api/WeComText"
-    // return (axios.get(checkUrl));
-    return {
-        curl:"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=cfcfd8ae-b0be-408d-8e3f-28295615cc97",
-        messagetype:"text",
-        user: ['all'],
-        content:'系统炸了！'
-    }
+  
+  //测试电话Or短信
+  testPhoneOrSms(model){
+    return (axios.post("http://192.168.158.17:30346/api/Alarm/PhoneOrMessage",model))
   }
-
-  updateWechetSetting(wechatModel){
-    return wechatModel
-  }
-	
-	getMailSetting(){
-    return{
-      email:"gaochengfeng@dev.appeon.net"
-    }
-  }
-
-  getPhoneSetting() {
-      return {
-          url:"http://yzxyytz.market.alicloudapi.com/yzx/voiceNotifySms",
-          phone:"13500042947",
-          message:"电话测试",
-          templateid:"TP2109015",
-          appcode:"cc2b702e050c417db4f8a36d35ebfd38"
-      }
-  }
-
-  getSmsSetting(){
-      return {
-          url:"http://yzxtz.market.alicloudapi.com/yzx/notifySms",
-          phone:"13500042947",
-          message:"消息测试",
-          templateid:"TP21090211",
-          appcode:"cc2b702e050c417db4f8a36d35ebfd38"
-      }
+  
+  //测试邮箱
+  testEmail(model){
+    console.log(model)
+    return (axios.post("http://192.168.158.17:30346/api/Alarm/Email",model))
   }
 
   getRemindAllUser(){
