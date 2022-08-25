@@ -14,4 +14,31 @@
   <ItemGroup>
     <Script Include="**" Exclude="*.esproj;**\node_modules\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".git\refs\heads\" />
+    <Folder Include="dist\data\" />
+    <Folder Include="dist\images\avatar\" />
+    <Folder Include="dist\images\blocks\logos\" />
+    <Folder Include="dist\images\nature\" />
+    <Folder Include="dist\images\pages\" />
+    <Folder Include="dist\images\themes\" />
+    <Folder Include="dist\layout\images\widgets\" />
+    <Folder Include="dist\themes\arya-orange\" />
+    <Folder Include="dist\themes\arya-purple\" />
+    <Folder Include="dist\themes\bootstrap4-light-blue\" />
+    <Folder Include="dist\themes\fluent-light\" />
+    <Folder Include="dist\themes\lara-dark-blue\" />
+    <Folder Include="dist\themes\lara-dark-indigo\" />
+    <Folder Include="dist\themes\lara-dark-purple\" />
+    <Folder Include="dist\themes\lara-dark-teal\" />
+    <Folder Include="dist\themes\lara-light-blue\" />
+    <Folder Include="dist\themes\lara-light-indigo\" />
+    <Folder Include="dist\themes\lara-light-purple\" />
+    <Folder Include="dist\themes\lara-light-teal\" />
+    <Folder Include="dist\themes\luna-amber\" />
+    <Folder Include="dist\themes\luna-blue\" />
+    <Folder Include="dist\themes\luna-green\" />
+    <Folder Include="dist\themes\luna-pink\" />
+    <Folder Include="dist\themes\md-dark-deeppurple\" />
+  </ItemGroup>
 </Project>
