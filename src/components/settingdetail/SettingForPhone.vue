@@ -30,8 +30,14 @@
 									</n-form>
 									<p></p>
 									<n-space>
-										<n-button round @click="addPhoneItem()">确定</n-button>
-                    <n-button round @click="TestPhoneOrSmsSend(newPhoneModel)">测试</n-button>
+										<n-button v-if="!loading_commint" round @click="addPhoneItem()">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>确定</n-button>
+                    </n-spin>
+                    <n-button v-if="!loading_test" round @click="TestPhoneOrSmsSend(newPhoneModel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>测试</n-button>
+                    </n-spin>
 										<n-button round @click="AddPhoneItem=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -63,8 +69,14 @@
 									</n-form>
 									<p></p>
 									<n-space>
-										<n-button round @click="editPhoneItemSend()">确定</n-button>
-                    <n-button round @click="TestPhoneOrSmsSend(editPhoneModel)">测试</n-button>
+										<n-button v-if="!loading_commint" round @click="editPhoneItemSend()">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>确定</n-button>
+                    </n-spin>
+                    <n-button v-if="!loading_test" round @click="TestPhoneOrSmsSend(editPhoneModel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>测试</n-button>
+                    </n-spin>
 										<n-button round @click="EditPhoneItem=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -192,6 +204,10 @@ export default {
       //电话列表
       allNumbersByPhone:[],
       
+      //加载转圈动画控制
+      loading_commint:ref(false),
+      loading_test:ref(false),
+      
       //编辑
       editPhoneModel:{},
       
@@ -224,6 +240,7 @@ export default {
       //this.formRef.value?.validate((errors) => {
           //if (!errors) {
             this.AddPhoneItem=false
+            this.loading_commint=true
             try{
               this.settingService.addNumberForPhone(this.newPhoneModel).then(res=>{
                 if(res.status===200){
@@ -233,10 +250,11 @@ export default {
                 }else{
                   window.$message.error('添加失败！', { duration: 5e3 })
                 }
+                this.loading_commint=false
               })
             }catch(err){ 
-              console.log(err)
               window.$message.error('添加失败！', { duration: 5e3 })
+              this.loading_commint=false
             }
           //} else {
             //window.$message.error("表单验证失败");
@@ -267,20 +285,20 @@ export default {
     //编辑Phone item
 		editPhoneItemSend(){
 			this.EditPhoneItem=false
-
-      //console.log(this.editPhoneModel)
+      this.loading_commint=true
 			this.settingService.updateNumberForPhone(this.editPhoneModel).then(res=>{
 				if(res.status===200){
 					window.$message.success('编辑成功！', { duration: 5e3 })
 				}else{
 					window.$message.error('编辑失败！', { duration: 5e3 })
 				}
+        this.loading_commint=false
 			})
 		},
     
     //测试电话短信验证方式
 		TestPhoneOrSmsSend(modelItem){
-			//this.showmodel.testingsms_spin=true
+			this.loading_test=true
 			var msg
 			var phonemsg={
 				success:'拨通电话成功，请注意查收！',
@@ -303,9 +321,11 @@ export default {
           }else{
 						window.$message.error(msg.fail, { duration: 5e3 })
           }
+          this.loading_test=false
         })
       }catch(err){
 				window.$message.error(err.message, { duration: 5e3 })
+        this.loading_test=false
       }
 		},
     

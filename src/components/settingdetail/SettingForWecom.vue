@@ -56,8 +56,14 @@
 									</n-form>
 									<p></p>
 									<n-space>
-                    <n-button round @click="addWechatItem()">确定</n-button>
-                    <n-button round @click="TestWeComSend(newWechatModel)">测试</n-button>
+                    <n-button v-if="!loading_commint" round @click="addWechatItem()">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>确定</n-button>
+                    </n-spin>
+                    <n-button v-if="!loading_test" round @click="TestWeComSend(newWechatModel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>测试</n-button>
+                    </n-spin>
 										<n-button round @click="AddWechatItem=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -118,8 +124,14 @@
 									</n-form>
 									<p></p>
 									<n-space>
-                    <n-button round @click="editWeConTextItem()">确定</n-button>
-                    <n-button round @click="TestWeComSend(editWechatModel)">测试</n-button>
+                    <n-button v-if="!loading_commint" round @click="editWeConTextItem()">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>确定</n-button>
+                    </n-spin>
+                    <n-button v-if="!loading_test" round @click="TestWeComSend(editWechatModel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>测试</n-button>
+                    </n-spin>
 										<n-button round @click="EditWechatItem=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -176,6 +188,10 @@ export default {
       AddWechatItem:ref(false),
       EditWechatItem:ref(false),
       
+      //加载转圈动画控制
+      loading_commint:ref(false),
+      loading_test:ref(false),
+      
       //新增企业微信model
 			newWechatModel:{
 				name:'',
@@ -201,14 +217,12 @@ export default {
   
   methods:{
     init(){
-			//this.allWeComText=this.allWeComfromParent
-      //console.log(this.allWeComfromParent)
       this.getAllWeComText()
     },
     
 		//发送企业微信消息测试
     TestWeComSend(WechatModel){
-      console.log(WechatModel)
+      this.loading_test=true
       try{
         this.settingService.testWeComtext(WechatModel).then(res=>{
           if(res.data.errcode===0){
@@ -217,8 +231,10 @@ export default {
           else{
             window.$message.error(res.data.errmsg, { duration: 5e3 })
           }
+          this.loading_test=false
         })	
       }catch(err){
+        this.loading_test=false
         window.$message.error(err, { duration: 5e3 })
       }
 			
@@ -233,21 +249,22 @@ export default {
     
     //编辑企业微信item
 		editWeConTextItem(){
-			//this.editWechatModel=item
+			this.loading_commint=true
 			this.EditWechatItem=false
 
-      //console.log(this.editWechatModel)
 			this.settingService.updateWeComText(this.editWechatModel).then(res=>{
 				if(res.status===200){
 					window.$message.success('编辑成功！', { duration: 5e3 })
 				}else{
 					window.$message.error('编辑失败！', { duration: 5e3 })
 				}
+        this.loading_commint=false
 			})
 		},
     
     //添加企业微信群聊
 		addWechatItem(){
+      this.loading_commint=true
 			this.AddWechatItem=false
 			try{
 				this.settingService.addWeComText(this.newWechatModel).then(res=>{
@@ -259,9 +276,10 @@ export default {
 					}else{
 						window.$message.error('添加失败！', { duration: 5e3 })
 					}
+          this.loading_commint=false
 				})
 			}catch(err){
-				console.log(err)
+        this.loading_commint=false
 				window.$message.error('添加失败！', { duration: 5e3 })
 			}
 		},

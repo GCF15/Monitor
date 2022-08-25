@@ -74,7 +74,7 @@
 									role="dialog"
 									aria-modal="true"
 									>
-									<h5  style="margin-top:-10px;">编辑邮箱信息</h5>
+									<h5  style="margin-top:-10px;"> 编辑邮箱信息</h5>
 									<hr/>
 									<p></p>
 									<n-form        
@@ -106,8 +106,16 @@
 									</n-form>
 									<p></p>
 									<n-space>
-										<n-button round @click="editEmailItemSend(editEmailModel)">确定</n-button>
-                    <n-button round @click="TestEmailSend(editEmailModel)">测试</n-button>
+                    <n-button v-if="!loading_commint" round @click="editEmailItemSend(editEmailModel)">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round @click="editEmailItemSend(editEmailModel)">确定</n-button>
+                    </n-spin>
+                    
+                    <n-button v-if="!loading_test" round @click="TestEmailSend(editEmailModel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round @click="TestEmailSend(editEmailModel)">测试</n-button>
+                    </n-spin>
+                    
 										<n-button round @click="cancelEdit()">取消</n-button>
 									</n-space>
 									</n-card>
@@ -154,8 +162,15 @@
 									</n-form>
 									<p></p>
 									<n-space>
-										<n-button round @click="addEmailItemSend()">确定</n-button>
-                    <n-button round @click="TestEmailSend(newEmailmodel)">测试</n-button>
+										<n-button v-if="!loading_commint" round @click="addEmailItemSend()">确定</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>确定</n-button>
+                    </n-spin>
+                    
+                    <n-button v-if="!loading_test" round @click="TestEmailSend(newEmailmodel)">测试</n-button>
+                    <n-spin size="small" v-else stroke="#21a35c">
+                      <n-button round>测试</n-button>
+                    </n-spin>
 										<n-button round @click="AddEmailItem=false">取消</n-button>
 									</n-space>
 									</n-card>
@@ -193,17 +208,20 @@ export default {
         AddEmailItem:ref(false),
         EditEmailItem:ref(false),
         
+        loading_commint:ref(false),
+        loading_test:ref(false),
+        
 				editmail:ref(false),
         newEmailmodel:{
 					name: "Richard Hernandez",
           host: "smtp.mxhichina.com",
           port: 465,
           isUseSsl: true,
-          sender: "Charles White",
+          sender: "Appeon Monitor",
           from: "no-reply@aipuyang.com",
           recipient: "Edward Martinez",
           to: "x.ufwcjdd@163.com",
-          subject: "服务监控报警",
+          subject: "Appeon服务监控报警",
           body: "New emial",
           password: "na&uOaZ!"
         },
@@ -256,6 +274,7 @@ export default {
       
       //发送新增
       addEmailItemSend(){
+        this.loading_commint=true
 				this.settingService.addEmail(this.newEmailmodel).then(res=>{
 					if(res.status===200){
 						window.$message.success('添加成功！', { duration: 5e3 })
@@ -265,22 +284,26 @@ export default {
           else{
             window.$message.error(res.data.errmsg, { duration: 5e3 })
           }
+          this.loading_commint=false
         })
       },
       
       //发送测试
       TestEmailSend(model){
+        this.loading_test=true
 				this.settingService.testEmail(model).then(res=>{
 					if(res.status===200){
 						window.$message.success('发送成功，请注意查收邮件验证！', { duration: 5e3 })
           }else{
 						window.$message.error(res.data.errmsg, { duration: 5e3 })
           }
+          this.loading_test=false
         })
       },
       
       //发送编辑
       editEmailItemSend(model){
+        this.loading_commint=true
 				this.settingService.editEmail(model).then(res=>{
 					if(res.status===200){
 						window.$message.success('更新成功！', { duration: 5e3 })
@@ -288,6 +311,7 @@ export default {
           }else{
 						window.$message.error(res.data.errmsg, { duration: 5e3 })
           }
+          this.loading_commint=false
         })
       },
       
