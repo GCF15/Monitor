@@ -11,17 +11,20 @@
 									<h5  style="margin-top:-10px;">添加微信群</h5>
 									<hr/>
 									<p></p>
-									<n-form        
+									<n-form   
+                    ref="formRef" 
+                    :model="newWechatModel"
+                    :rules="rules"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="群名称" style="margin-top:20px;">
+										<n-form-item label="群名称" style="margin-top:20px;" path="name">
 											<n-input placeholder="群名称" v-model:value=newWechatModel.name></n-input>
 										</n-form-item>
-										<n-form-item label="机器人">
+										<n-form-item label="机器人" path="webhookUrl">
 											<n-input placeholder="webhookUrl" v-model:value=newWechatModel.webhookUrl></n-input>
 										</n-form-item>
                     <n-form-item label="特别提醒:">  
@@ -79,17 +82,20 @@
 									<h5  style="margin-top:-10px;">编辑微信群</h5>
 									<hr/>
 									<p></p>
-									<n-form        
+									<n-form   
+                    ref="formRef" 
+                    :model="editWechatModel"
+                    :rules="rules"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="群名称" style="margin-top:20px;">
+										<n-form-item label="群名称" style="margin-top:20px;" path="name">
 											<n-input placeholder="群名称" v-model:value=editWechatModel.name></n-input>
 										</n-form-item>
-										<n-form-item label="机器人">
+										<n-form-item label="机器人" path="webhookUrl">
 											<n-input placeholder="webhookUrl" v-model:value=editWechatModel.webhookUrl></n-input>
 										</n-form-item>
                     <n-form-item label="特别提醒:">  
@@ -170,6 +176,7 @@
 <script>
 import {ref} from 'vue'
 import SettingService from '../../service/SettingService.js'
+import {rules_wecom} from '../js/Rules'
 
 export default {
   props:{
@@ -181,7 +188,12 @@ export default {
   },
   
   data(){
+    //表单验证规则
+    const formRef = ref(null);
+    const rules = rules_wecom;
+    
 		return{
+      rules,formRef,
       allWeComText:{},
       settingService:new SettingService(),
       
@@ -223,7 +235,6 @@ export default {
 		//发送企业微信消息测试
     TestWeComSend(WechatModel){
       this.loading_test=true
-      try{
         this.settingService.testWeComtext(WechatModel).then(res=>{
           if(res.data.errcode===0){
             window.$message.success('发送成功，请前往企业微信群查看验证！', { duration: 5e3 })
@@ -232,56 +243,58 @@ export default {
             window.$message.error(res.data.errmsg, { duration: 5e3 })
           }
           this.loading_test=false
-        })	
-      }catch(err){
-        this.loading_test=false
-        window.$message.error(err, { duration: 5e3 })
-      }
+        }).catch(err=>{
+					this.loading_test=false
+          window.$message.error(err.message, { duration: 5e3 })
+        })
 			
       this.ModalShow=false
     },
     
     //拉起wechat编辑
 		editItem(item){
-			this.editWechatModel=item
+			this.editWechatModel=JSON.parse(JSON.stringify(item))//深拷贝
 			this.EditWechatItem=true
 		},
     
     //编辑企业微信item
 		editWeConTextItem(){
 			this.loading_commint=true
-			this.EditWechatItem=false
 
 			this.settingService.updateWeComText(this.editWechatModel).then(res=>{
 				if(res.status===200){
 					window.$message.success('编辑成功！', { duration: 5e3 })
+          this.EditWechatItem=false
+          this.getAllWeComText()
 				}else{
 					window.$message.error('编辑失败！', { duration: 5e3 })
 				}
         this.loading_commint=false
-			})
+			}).catch(err=>{
+				this.loading_commint=false
+        window.$message.error(err.message, { duration: 5e3 })
+      })
 		},
     
     //添加企业微信群聊
 		addWechatItem(){
       this.loading_commint=true
-			this.AddWechatItem=false
-			try{
 				this.settingService.addWeComText(this.newWechatModel).then(res=>{
 					if(res.status===200){
 						window.$message.success('添加成功！', { duration: 5e3 })
             this.newWechatModel.webhookUrl=''
             this.newWechatModel.message.messageType='text'
+            this.AddWechatItem=false
 						this.getAllWeComText()
 					}else{
 						window.$message.error('添加失败！', { duration: 5e3 })
 					}
           this.loading_commint=false
-				})
-			}catch(err){
-        this.loading_commint=false
-				window.$message.error('添加失败！', { duration: 5e3 })
-			}
+				}).catch(err=>{
+					this.loading_commint=false
+          
+          window.$message.error(err.message, { duration: 5e3 })
+        })
 		},
     
     //删除企业微信群

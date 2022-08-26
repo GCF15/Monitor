@@ -14,7 +14,7 @@
 									<n-form  
                     ref="formRef" 
                     :model="newPhoneModel" 
-                    :rules="rules"
+                    :rules="rules_new"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
@@ -22,15 +22,15 @@
 										:style="{       maxWidth: '640px'     }"    
 									> 
 										<n-form-item label="号码主人" path="name" style="margin-top:20px;">
-											<n-input placeholder="马大哈" v-model:value="newPhoneModel.Name"></n-input>
+											<n-input placeholder="马大哈" v-model:value="newPhoneModel.name"></n-input>
 										</n-form-item>
-										<n-form-item label="号码" path="number">
-											<n-input placeholder="135********" v-model:value="newPhoneModel.Phone"></n-input>
+										<n-form-item label="号码" path="phone">
+											<n-input placeholder="135********" v-model:value="newPhoneModel.phone"></n-input>
 										</n-form-item>
 									</n-form>
 									<p></p>
 									<n-space>
-										<n-button v-if="!loading_commint" round @click="addPhoneItem()">确定</n-button>
+										<n-button v-if="!loading_commint" round @click="addPhoneItem">确定</n-button>
                     <n-spin size="small" v-else stroke="#21a35c">
                       <n-button round>确定</n-button>
                     </n-spin>
@@ -53,18 +53,21 @@
 									<h5  style="margin-top:-10px;">编辑电话</h5>
 									<hr/>
 									<p></p>
-									<n-form        
+									<n-form   
+                    ref="formRef" 
+                    :model="editPhoneModel" 
+                    :rules="rules_edit"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="号码主人" style="margin-top:20px;">
+										<n-form-item label="号码主人" style="margin-top:20px;" path="name">
 											<n-input placeholder="马大哈" v-model:value="editPhoneModel.name"></n-input>
 										</n-form-item>
-										<n-form-item label="号码">
-											<n-input placeholder="135********" v-model:value="editPhoneModel.phone"></n-input>
+										<n-form-item label="号码" path="phone">
+											<n-input placeholder="11位号码" v-model:value="editPhoneModel.phone"></n-input>
 										</n-form-item>
 									</n-form>
 									<p></p>
@@ -158,6 +161,7 @@
 <script>
 import {ref} from 'vue'
 import SettingService from '../../service/SettingService.js'
+import {func} from '../js/Rules'
 
 export default {
   mounted(){
@@ -167,34 +171,13 @@ export default {
   data(){
     //表单验证规则
     const formRef = ref(null);
-    const rules = {
-      name: [
-        {
-          required: true,
-          validator(rule, value) {
-            if (!value) {
-              return new Error("需要年龄");
-            } 
-            return true;
-          },
-          trigger: ["input", "blur"]
-        }
-      ],
-      number:[
-				{
-					required: true,
-          validator(rule, value) {
-            if (!value) {
-              return new Error("需要年龄");
-            } 
-            return true;
-          },
-          trigger: ["input", "blur"]
-        }
-      ]
-    };
+    //const rules = rules_phone;
+    const rules_new = ref(null);
+    const rules_edit = ref(null);
+    
 		return{
-      rules,formRef,
+      formRef,
+      rules_new,rules_edit,
       settingService:new SettingService(),
       
 			AddPhoneItem:ref(false),
@@ -213,13 +196,13 @@ export default {
       
       //新增Phone model
 			newPhoneModel:{
-        Name:"",
-        IsVoice:true,
-        Url: "http://yzxyytz.market.alicloudapi.com/yzx/voiceNotifySms",
-        Phone: "",
-        TemplateId: "TP2109015",
-        Variable: "servername:电话测试",
-        Appcode: "cc2b702e050c417db4f8a36d35ebfd38"
+        name:"",
+        isVoice:true,
+        url: "http://yzxyytz.market.alicloudapi.com/yzx/voiceNotifySms",
+        phone: "",
+        templateId: "TP2109015",
+        variable: "servername:电话测试",
+        appcode: "cc2b702e050c417db4f8a36d35ebfd38"
 			},
       
       phonemodel:ref({
@@ -237,27 +220,28 @@ export default {
   
 		//添加电话通知号码
     addPhoneItem(){
-      //this.formRef.value?.validate((errors) => {
+      //this.formRef?.validate((errors) => {
           //if (!errors) {
             this.AddPhoneItem=false
             this.loading_commint=true
-            try{
+
               this.settingService.addNumberForPhone(this.newPhoneModel).then(res=>{
                 if(res.status===200){
                   window.$message.success('添加成功！', { duration: 5e3 })
-                  this.newPhoneModel.Phone=''
+                  this.newPhoneModel.phone=''
                   this.getAllNumbersByPhone()
                 }else{
                   window.$message.error('添加失败！', { duration: 5e3 })
                 }
                 this.loading_commint=false
+              }).catch(err=>{
+                window.$message.error(err.message, { duration: 5e3 })
               })
-            }catch(err){ 
-              window.$message.error('添加失败！', { duration: 5e3 })
-              this.loading_commint=false
-            }
-          //} else {
-            //window.$message.error("表单验证失败");
+              
+            this.loading_commint=false
+          //}else {
+            //console.log("表单验证失败")
+            //window.$message.error('表单验证失败！', { duration: 5e3 })
           //}
         //});
 			
@@ -266,7 +250,7 @@ export default {
     //拉起Phone编辑
 		editPhoneItem(item){
       this.EditPhoneItem=true
-			this.editPhoneModel=item
+			this.editPhoneModel=JSON.parse(JSON.stringify(item))//深拷贝
       //console.log(this.editPhoneModel)
 		},
     
@@ -279,7 +263,9 @@ export default {
 				}else{
 					window.$message.error('删除失败！', { duration: 5e3 })
 				}
-			})
+			}).catch(err=>{
+        window.$message.error(err.message, { duration: 5e3 })
+      })
     },
     
     //编辑Phone item
@@ -289,11 +275,14 @@ export default {
 			this.settingService.updateNumberForPhone(this.editPhoneModel).then(res=>{
 				if(res.status===200){
 					window.$message.success('编辑成功！', { duration: 5e3 })
+          this.getAllNumbersByPhone()
 				}else{
 					window.$message.error('编辑失败！', { duration: 5e3 })
 				}
         this.loading_commint=false
-			})
+			}).catch(err=>{
+        window.$message.error(err.message, { duration: 5e3 })
+      })
 		},
     
     //测试电话短信验证方式
@@ -314,7 +303,6 @@ export default {
 				msg = smsmsg
 			}
       
-      try{
 				this.settingService.testPhoneOrSms(modelItem).then(res=>{
 					if(res.status===200 && res.data.return_code==="00000"){
 						window.$message.success(msg.success, { duration: 5e3 })
@@ -322,11 +310,9 @@ export default {
 						window.$message.error(msg.fail, { duration: 5e3 })
           }
           this.loading_test=false
+        }).catch(err=>{
+          window.$message.error(err.message, { duration: 5e3 })
         })
-      }catch(err){
-				window.$message.error(err.message, { duration: 5e3 })
-        this.loading_test=false
-      }
 		},
     
     //获取电话列表
@@ -339,10 +325,14 @@ export default {
           }
         })
         this.allNumbersByPhone=elements
+        
+        this.rules_new=func.validator_phone(this.allNumbersByPhone,true)
+        this.rules_edit=func.validator_phone(this.allNumbersByPhone,false)
+        }).catch(err=>{
+          window.$message.error(err.message, { duration: 5e3 })
         })
-    },
-    
-  }
+      },
+    }
 }
 </script>
 

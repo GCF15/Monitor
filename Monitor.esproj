@@ -16,29 +16,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".git\refs\heads\" />
-    <Folder Include="dist\data\" />
     <Folder Include="dist\images\avatar\" />
+    <Folder Include="dist\images\blocks\hero\" />
     <Folder Include="dist\images\blocks\logos\" />
+    <Folder Include="dist\images\galleria\" />
     <Folder Include="dist\images\nature\" />
     <Folder Include="dist\images\pages\" />
+    <Folder Include="dist\images\product\" />
     <Folder Include="dist\images\themes\" />
+    <Folder Include="dist\images\widgets\" />
+    <Folder Include="dist\layout\images\themes\" />
     <Folder Include="dist\layout\images\widgets\" />
-    <Folder Include="dist\themes\arya-orange\" />
-    <Folder Include="dist\themes\arya-purple\" />
-    <Folder Include="dist\themes\bootstrap4-light-blue\" />
-    <Folder Include="dist\themes\fluent-light\" />
-    <Folder Include="dist\themes\lara-dark-blue\" />
-    <Folder Include="dist\themes\lara-dark-indigo\" />
-    <Folder Include="dist\themes\lara-dark-purple\" />
-    <Folder Include="dist\themes\lara-dark-teal\" />
-    <Folder Include="dist\themes\lara-light-blue\" />
-    <Folder Include="dist\themes\lara-light-indigo\" />
-    <Folder Include="dist\themes\lara-light-purple\" />
-    <Folder Include="dist\themes\lara-light-teal\" />
-    <Folder Include="dist\themes\luna-amber\" />
-    <Folder Include="dist\themes\luna-blue\" />
-    <Folder Include="dist\themes\luna-green\" />
-    <Folder Include="dist\themes\luna-pink\" />
-    <Folder Include="dist\themes\md-dark-deeppurple\" />
+    <Folder Include="dist\themes\vela-orange\" />
+    <Folder Include="dist\themes\vela-purple\" />
   </ItemGroup>
 </Project>

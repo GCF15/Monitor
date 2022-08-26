@@ -11,18 +11,21 @@
 									<h5  style="margin-top:-10px;">添加短信发送号码</h5>
 									<hr/>
 									<p></p>
-									<n-form        
+									<n-form   
+                    ref="formRef" 
+                    :model="newPhoneModel" 
+                    :rules="rules_new"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="号码主人" style="margin-top:20px;">
-											<n-input placeholder="马大哈" v-model:value="newPhoneModel.Name"></n-input>
+										<n-form-item label="号码主人" path="name" style="margin-top:20px;">
+											<n-input placeholder="马大哈" v-model:value="newPhoneModel.name"></n-input>
 										</n-form-item>
-										<n-form-item label="号码">
-											<n-input placeholder="135********" v-model:value="newPhoneModel.Phone"></n-input>
+										<n-form-item label="号码" path="phone">
+											<n-input placeholder="135********" v-model:value="newPhoneModel.phone"></n-input>
 										</n-form-item>
 									</n-form>
 									<p></p>
@@ -51,16 +54,19 @@
 									<hr/>
 									<p></p>
 									<n-form        
+                    ref="formRef" 
+                    :model="editPhoneModel" 
+                    :rules="rules_edit"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="号码主人" style="margin-top:20px;">
+										<n-form-item label="号码主人" style="margin-top:20px;" path="name">
 											<n-input placeholder="马大哈" v-model:value="editPhoneModel.name"></n-input>
 										</n-form-item>
-										<n-form-item label="号码">
+										<n-form-item label="号码" path="phone">
 											<n-input placeholder="135********" v-model:value="editPhoneModel.phone"></n-input>
 										</n-form-item>
 									</n-form>
@@ -157,6 +163,7 @@
 <script>
 import {ref} from 'vue'
 import SettingService from '../../service/SettingService.js'
+import {func} from '../js/Rules'
 
 export default {
   mounted(){
@@ -164,7 +171,14 @@ export default {
   },
   
   data(){
+		//表单验证规则
+    const formRef = ref(null);
+    const rules_new = ref(null);
+    const rules_edit = ref(null);
+    
 		return{
+      formRef,
+      rules_new,rules_edit,
       settingService:new SettingService(),
       
 			AddPhoneItem:ref(false),
@@ -182,13 +196,13 @@ export default {
       
       //新增Phone model
 			newPhoneModel:{
-        Name:"",
-        IsVoice:false,
-        Url: "http://yzxtz.market.alicloudapi.com/yzx/notifySms",
-        Phone: "",
-        TemplateId: "TP21090211",
-        Variable: "servername:短信测试",
-        Appcode: "cc2b702e050c417db4f8a36d35ebfd38"
+        name:"",
+        isVoice:false,
+        url: "http://yzxtz.market.alicloudapi.com/yzx/notifySms",
+        phone: "",
+        templateId: "TP21090211",
+        variable: "servername:短信测试",
+        appcode: "cc2b702e050c417db4f8a36d35ebfd38"
 			},
       
       phonemodel:ref({
@@ -207,28 +221,28 @@ export default {
 		//添加短信通知号码
     addPhoneItem(){
 			this.loading_commint=true
-			this.AddPhoneItem=false
-			try{
+			
 				this.settingService.addNumberForPhone(this.newPhoneModel).then(res=>{
 					if(res.status===200){
 						window.$message.success('添加成功！', { duration: 5e3 })
             this.newPhoneModel.Phone=''
+            this.AddPhoneItem=false
+            this.loading_commint=false
 						this.getAllNumbersByPhone()
 					}else{
 						window.$message.error('添加失败！', { duration: 5e3 })
 					}
-				})
-        this.loading_commint=false
-			}catch(err){
-				window.$message.error('添加失败！', { duration: 5e3 })
-        this.loading_commint=false
-			}
+				}).catch(err=>{
+					this.loading_commint=false
+          window.$message.error(err.message, { duration: 5e3 })
+        })
+			
 		},
     
     //拉起Phone编辑
 		editPhoneItem(item){
       this.EditPhoneItem=true
-			this.editPhoneModel=item
+			this.editPhoneModel=JSON.parse(JSON.stringify(item))//深拷贝
       //console.log(this.editPhoneModel)
 		},
     
@@ -241,22 +255,28 @@ export default {
 				}else{
 					window.$message.error('删除失败！', { duration: 5e3 })
 				}
-			})
+			}).catch(err=>{
+				window.$message.error(err.message, { duration: 5e3 })
+      })
     },
     
     //编辑Phone item
 		editPhoneItemSend(){
-			this.EditPhoneItem=false
       this.loading_commint=true
       //console.log(this.editPhoneModel)
 			this.settingService.updateNumberForPhone(this.editPhoneModel).then(res=>{
 				if(res.status===200){
 					window.$message.success('编辑成功！', { duration: 5e3 })
+          this.EditPhoneItem=false
+          this.loading_commint=false
+          this.getAllNumbersByPhone()
 				}else{
 					window.$message.error('编辑失败！', { duration: 5e3 })
 				}
+			}).catch(err=>{
         this.loading_commint=false
-			})
+				window.$message.error(err.message, { duration: 5e3 })
+      })
 		},
     
     //测试电话短信验证方式
@@ -277,19 +297,19 @@ export default {
 				msg = smsmsg
 			}
       
-      try{
 				this.settingService.testPhoneOrSms(modelItem).then(res=>{
 					if(res.status===200 && res.data.return_code==="00000"){
 						window.$message.success(msg.success, { duration: 5e3 })
+            this.loading_test=false
           }else{
 						window.$message.error(msg.fail, { duration: 5e3 })
+            this.loading_test=false
           }
+        }).catch(err=>{
           this.loading_test=false
+          window.$message.error(err.message, { duration: 5e3 })
         })
-      }catch(err){
-        this.loading_test=false
-				window.$message.error(err.message, { duration: 5e3 })
-      }
+      
 		},
     
     //获取电话列表
@@ -302,6 +322,12 @@ export default {
           }
         })
         this.allNumbersByPhone=elements
+        
+        //刷新表单验证规则
+        this.rules_new=func.validator_phone(this.allNumbersByPhone,true)
+        this.rules_edit=func.validator_phone(this.allNumbersByPhone,false)
+      }).catch(err=>{
+				window.$message.error(err.message, { duration: 5e3 })
       })
     },
     

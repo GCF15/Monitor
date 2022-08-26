@@ -77,17 +77,20 @@
 									<h5  style="margin-top:-10px;"> 编辑邮箱信息</h5>
 									<hr/>
 									<p></p>
-									<n-form        
+									<n-form    
+                    ref="formRef" 
+                    :model="editEmailModel" 
+                    :rules="rules_edit"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="收件人:" style="margin-top:20px;">
+										<n-form-item label="收件人:" style="margin-top:20px;" path="recipient">
 											<n-input placeholder="马大哈" v-model:value="editEmailModel.recipient"></n-input>
 										</n-form-item>
-										<n-form-item label="邮箱账号:" >
+										<n-form-item label="邮箱账号:" path="to">
                       <n-auto-complete
                         v-model:value="editEmailModel.to"
                         :input-props="{
@@ -97,10 +100,10 @@
                         placeholder="邮箱"
                       />
                     </n-form-item>
-                    <n-form-item label="主题:">
+                    <n-form-item label="主题:" path="subject">
 											<n-input v-model:value="editEmailModel.subject"></n-input>
 										</n-form-item>
-                    <n-form-item label="内容:">
+                    <n-form-item label="内容:" path="body">
 											<n-input type="textarea" v-model:value="editEmailModel.body"></n-input>
 										</n-form-item>
 									</n-form>
@@ -134,16 +137,19 @@
 									<hr/>
 									<p></p>
 									<n-form        
+                    ref="formRef" 
+                    :model="newEmailmodel" 
+                    :rules="rules_new"
 										label-placement="left"     
 										label-width="auto" 
 										require-mark-placement="right-hanging"
 										:size="size"  
 										:style="{       maxWidth: '640px'     }"    
 									> 
-										<n-form-item label="收件人:" style="margin-top:20px;">
+										<n-form-item label="收件人:" path="recipient" style="margin-top:20px;">
 											<n-input placeholder="马大哈" v-model:value="newEmailmodel.recipient"></n-input>
 										</n-form-item>
-										<n-form-item label="邮箱账号:" >
+										<n-form-item label="邮箱账号:" path="to">
                       <n-auto-complete
                         v-model:value="newEmailmodel.to"
                         :input-props="{
@@ -153,10 +159,10 @@
                         placeholder="邮箱"
                       />
                     </n-form-item>
-                    <n-form-item label="主题:">
+                    <n-form-item label="主题:" path="subject">
 											<n-input v-model:value="newEmailmodel.subject"></n-input>
 										</n-form-item>
-                    <n-form-item label="内容:">
+                    <n-form-item label="内容:" path="body">
 											<n-input type="textarea" v-model:value="newEmailmodel.body"></n-input>
 										</n-form-item>
 									</n-form>
@@ -180,6 +186,7 @@
 <script>
 import {ref,computed} from 'vue'
 import SettingService from '../../service/SettingService.js'
+import {func} from '../js/Rules'
 
 export default {
     setup() {
@@ -200,7 +207,14 @@ export default {
     },
     
     data(){
-			return{
+			//表单验证规则
+      const formRef = ref(null);
+      const rules_new = ref(null);
+      const rules_edit = ref(null);
+      
+      return{
+        formRef,
+        rules_new,rules_edit,
         settingService:new SettingService(),
         
         //邮箱列表
@@ -245,13 +259,15 @@ export default {
       getAllEmail(){
 				this.settingService.getAllEmails().then(res=>{
           this.allEmails=res.data
+          this.rules_new=func.validator_email(this.allEmails,true)//新建model的表单验证
+          this.rules_edit=func.validator_email(this.allEmails,false)//新建model的表单验证
         })
       },
       
       //拉起编辑
 			editEmailItem(item){
 				this.EditEmailItem=true
-        this.editEmailModel=item
+        this.editEmailModel=JSON.parse(JSON.stringify(item))//深拷贝
       },
       
       //拉起新增
@@ -308,6 +324,7 @@ export default {
 					if(res.status===200){
 						window.$message.success('更新成功！', { duration: 5e3 })
             this.EditEmailItem=false
+            this.getAllEmail()
           }else{
 						window.$message.error(res.data.errmsg, { duration: 5e3 })
           }

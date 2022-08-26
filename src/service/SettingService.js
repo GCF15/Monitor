@@ -51,6 +51,7 @@ export default class SettingService {
   
   //添加电话号码
   addNumberForPhone(model){
+    console.log(model)
     return (axios.post("http://192.168.158.17:30872/api/PhoneOrMessage/Add", model));
   }
   
